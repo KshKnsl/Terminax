@@ -1,0 +1,327 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 240 10% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 3.9%;
+    --primary: 240 9% 89%;
+    --primary-foreground: 240 5.9% 10%;
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 240 5.9% 10%;
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: 240 5.9% 10%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 240 10% 3.9%;
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 240 5.9% 10%;
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 240 4.9% 83.9%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+  }
+}
+
+@layer base {
+  * {
+    border-color: hsl(var(--border));
+  }
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-family: Menlo, "DejaVu Sans Mono", "Lucida Console", monospace;
+    font-weight: 400;
+    background-color: #000000 !important;
+    color: rgb(170, 170, 170) !important;
+    font-size: 14px;
+    line-height: 21px;
+  }
+}
+
+/* Terminal-specific styles */
+.font-mono {
+  font-family: Menlo, "DejaVu Sans Mono", "Lucida Console", monospace;
+}
+
+.font-terminal {
+  font-family: Menlo, "DejaVu Sans Mono", "Lucida Console", monospace;
+  font-weight: 400;
+}
+
+.text-terminal-text {
+  color: rgb(170, 170, 170);
+}
+
+.text-terminal-green {
+  color: #00ff41;
+}
+
+.text-terminal-cyan {
+  color: #00ffff;
+}
+
+.bg-terminal-dark {
+  background-color: #1a1a1a;
+}
+
+.bg-terminal-card {
+  background-color: #0d1117;
+}
+
+.border-terminal-border {
+  border-color: #30363d;
+}
+
+.border-terminal-accent {
+  border-color: #21262d;
+}
+
+.border-terminal-green {
+  border-color: #00ff41;
+}
+
+.border-terminal-cyan {
+  border-color: #00ffff;
+}
+
+.leading-terminal {
+  line-height: 21px;
+}
+
+/* Custom scrollbar for terminal feel */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #000000;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #00ff41;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #00cc33;
+}
+
+/* Terminal cursor animation */
+@keyframes blink {
+  0%,
+  50% {
+    opacity: 1;
+  }
+  51%,
+  100% {
+    opacity: 0;
+  }
+}
+
+.terminal-cursor {
+  animation: blink 1s infinite;
+}
+
+/* Selection styling for terminal feel */
+::selection {
+  background-color: rgba(0, 255, 65, 0.3);
+  color: #00ff41;
+}
+
+/* Terminal button container with white background and 4px padding */
+.terminal-button-container {
+  display: inline-block;
+  background: #ffffff;
+  padding: 4px;
+  border-radius: 0;
+}
+
+/* Terminal button styling with dashed borders inside white container */
+.terminal-button {
+  background: #ffffff !important;
+  border: 2px dashed #000000 !important;
+  color: #000000 !important;
+  transition: all 0.15s ease-in-out;
+  border-radius: 0 !important;
+  font-weight: 400 !important;
+  position: relative;
+  box-shadow: none !important;
+  font-family: Menlo, "DejaVu Sans Mono", "Lucida Console", monospace;
+  font-size: 14px;
+}
+
+.terminal-button:hover {
+  background: #f3f4f6 !important;
+  color: #000000 !important;
+  transform: none;
+  box-shadow: none !important;
+}
+
+.terminal-button:focus {
+  background: #f3f4f6 !important;
+  color: #000000 !important;
+  box-shadow: none !important;
+  outline: none;
+}
+
+.terminal-button:focus-visible {
+  outline: none;
+  box-shadow: none !important;
+}
+
+.terminal-button[data-state="open"] {
+  background: #f3f4f6 !important;
+  color: #000000 !important;
+}
+
+/* Code styling */
+code {
+  font-family: Menlo, "DejaVu Sans Mono", "Lucida Console", monospace;
+  font-size: 14px;
+  font-weight: 400;
+  padding: 2px 4px;
+  border-radius: 2px;
+}
+
+/* Link styling */
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* Terminal content styling */
+.terminal-content {
+  background: #000000;
+  color: rgb(170, 170, 170);
+  font-feature-settings: "liga" 0, "calt" 0;
+  font-variant-ligatures: none;
+  letter-spacing: 0.025em;
+}
+
+/* Remove any default button focus rings */
+button:focus {
+  outline: none;
+}
+
+/* Ensure proper spacing and alignment */
+.space-y-1 > * + * {
+  margin-top: 0.25rem;
+}
+
+.space-y-2 > * + * {
+  margin-top: 0.5rem;
+}
+
+.space-y-3 > * + * {
+  margin-top: 0.75rem;
+}
+
+.space-y-4 > * + * {
+  margin-top: 1rem;
+}
+
+.space-y-6 > * + * {
+  margin-top: 1.5rem;
+}
+
+.space-y-8 > * + * {
+  margin-top: 2rem;
+}
+
+.space-y-12 > * + * {
+  margin-top: 3rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .terminal-button-container {
+    display: block;
+    width: 100%;
+  }
+
+  .terminal-button {
+    width: 100%;
+  }
+}
+
+/* Ensure all text maintains terminal aesthetic */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: Menlo, "DejaVu Sans Mono", "Lucida Console", monospace;
+  font-weight: 400;
+  color: rgb(170, 170, 170);
+  font-size: 14px;
+  line-height: 21px;
+}
+
+/* Override any default text colors */
+p,
+div,
+span {
+  font-family: Menlo, "DejaVu Sans Mono", "Lucida Console", monospace;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 21px;
+}
+
+/* Terminal window styling */
+.terminal-window {
+  background: #000000;
+  border: none;
+  box-shadow: none;
+}
+
+/* Hover effects for cards */
+.bg-terminal-card:hover {
+  background-color: #161b22;
+  transition: background-color 0.2s ease-in-out;
+}
+
+/* Dotted border styling */
+.border-dotted {
+  border-style: dotted;
+}
