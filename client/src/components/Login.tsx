@@ -1,41 +1,34 @@
-import React from 'react';
 import { Button } from "./ui/button";
 import { Github } from "lucide-react";
 
-const SERVER_URL = import.meta.env.VITE_SERVER_URL || 'http://localhost:3001';
+const SERVER_URL = import.meta.env.VITE_SERVER_URL || 'http://localhost:3000';
 
 const Login = () => {
   const handleGithubLogin = () => {
-    // Redirect to the GitHub OAuth flow
     window.location.href = `${SERVER_URL}/auth/github`;
   };
 
   return (
-    <div className="space-y-4 p-4 bg-terminal-dark border border-terminal-border text-terminal-text">
-      <h2 className="text-terminal-green font-bold text-lg mb-4">Terminal Login</h2>
-      
-      <div className="text-center mb-4">
-        <p className="text-terminal-text mb-2">Sign in with your GitHub account to access Terminax.</p>
-        <p className="text-terminal-text text-xs mb-4">We only access your public information.</p>
+    <div className="space-y-6 p-6 bg-white dark:bg-black text-gray-700 dark:text-gray-200 font-mono border-t border-gray-200 dark:border-gray-700">
+      <div className="text-center">
+        <h2 className="text-2xl font-bold text-purple-600 dark:text-purple-400 mb-2">Authenticate</h2>
+        <p className="text-gray-500 dark:text-gray-400">Sign in with GitHub to continue to Terminax.</p>
       </div>
       
-      <div className="terminal-button-container mt-4">
+      <div>
         <Button 
           type="button"
-          className="terminal-button bg-white text-black hover:bg-gray-100 w-full"
+          className="w-full bg-gray-100 dark:bg-black hover:bg-gray-200 dark:hover:bg-[#0A0A0A] text-gray-800 dark:text-white border border-gray-300 dark:border-gray-700"
           onClick={handleGithubLogin}
         >
           <Github className="w-4 h-4 mr-2" />
           Continue with GitHub
         </Button>
       </div>
-      
-      <div className="text-xs text-gray-500 mt-4 text-center">
-        By signing in, you agree to our <br />
-        <a href="#" className="text-terminal-green hover:underline">Terms of Service</a>
-        {" & "}
-        <a href="#" className="text-terminal-green hover:underline">Privacy Policy</a>
-      </div>
+
+      <p className="text-xs text-gray-500 dark:text-gray-400 text-center px-4">
+        By continuing, you agree to our Terms of Service and Privacy Policy. We only request access to your public GitHub information.
+      </p>
     </div>
   );
 };

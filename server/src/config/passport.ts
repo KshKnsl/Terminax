@@ -22,7 +22,7 @@ export default function configurePassport(): void {
     scope: ['user:email']
   }, async (accessToken: string, refreshToken: string, profile: any, done: any) => {
     try {
-      console.info(`GitHub auth for user ${profile}`);
+      console.info(`GitHub auth for user ${JSON.stringify(profile)}`);
       const userData = {
         username: profile.username,
         displayName: profile.displayName,

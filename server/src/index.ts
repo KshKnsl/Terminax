@@ -14,7 +14,10 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/terminax'
 .catch(err => console.error(`MongoDB connection error: ${err}`));
 
 const app = express();
-app.use(cors());
+app.use(cors({
+  origin: process.env.CLIENT_URL || 'http://localhost:5173',
+  credentials: true
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan("dev"));
