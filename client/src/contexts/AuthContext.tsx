@@ -7,6 +7,20 @@ interface User {
   username: string;
   displayName: string | null;
   avatar: string | null;
+  plan: {
+    name: string;
+    maxApps: number;
+    maxSessions: number;
+    features: string[];
+  };
+  stats: {
+    totalApps: number;
+    activeSessions: number;
+    totalSessions: number;
+  };
+  createdAt: string;
+  lastLogin: string;
+  githubConnectedAt: string;
 }
 
 interface AuthContextType {

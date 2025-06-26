@@ -1,5 +1,9 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import terminaxLogo from "@/assets/terminax-logo.png";
+import { cn } from "@/lib/utils";
+import { DotPattern } from "@/components/magicui/dot-pattern";
+import { MovingGradient } from "@/components/magicui/moving-gradient";
 import {
   Coffee,
   CloudLightningIcon as Lightning,
@@ -47,42 +51,100 @@ export default function HomePage() {
   ];
 
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-16">
-      <div className="text-center space-y-4">
-        <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-gray-900 dark:text-white tracking-tight">
-          Pipe CLI Output to the Web, Instantly.
-        </h1>
-        <p className="max-w-2xl mx-auto text-lg text-gray-600 dark:text-gray-300">
-          Terminax lets you share your terminal session in real-time, without any
-          hassle. Monitor long-running processes, share output with friends, or
-          embed a terminal in your own application.
-        </p>
-        <div className="bg-gray-100 dark:bg-[#0A0A0A] border border-gray-200 dark:border-gray-700 rounded-lg p-4 max-w-2xl mx-auto">
-          <div className="flex items-center">
-            <span className="text-pink-500 dark:text-pink-400 mr-2">{currentPrompt}</span>
-            <span className="text-gray-900 dark:text-white">
-              {typedText}
-              <span className="cursor-blink">█</span>
-            </span>
+    <div className="mx-auto space-y-16">
+      <div className="text-center">
+        <div className="relative flex h-[650px] w-full flex-col items-center justify-center overflow-hidden">
+          <DotPattern
+            width={36}
+            height={24}
+            cx={1}
+            cy={1}
+            cr={1.2}
+            glow={true}
+            className={cn(
+              "absolute inset-0 w-full h-full dot-pattern"
+            )}
+          />
+          <MovingGradient 
+            size={600}
+            blur={150}
+            speed={10}
+            color1="rgba(147, 51, 234, 0.7)" 
+            color2="rgba(168, 85, 247, 0.5)" 
+            opacity={0.6}
+            className="z-0"
+          />
+          <MovingGradient 
+            size={400}
+            blur={120}
+            speed={15}
+            color1="rgba(139, 92, 246, 0.65)" 
+            color2="rgba(91, 33, 182, 0.45)" 
+            opacity={0.5}
+            className="z-0"
+          />
+          <div className="z-10 flex flex-col items-center max-w-3xl">
+            <div className="flex justify-center mb-8">
+              <div className="relative">
+                <img
+                  src={terminaxLogo}
+                  alt="Terminax Logo"
+                  className="relative h-28 w-28 rounded-xl shadow-lg"
+                />
+              </div>
+            </div>
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-gray-900 dark:text-white tracking-tight">
+              Pipe CLI Output to the Web, Instantly.
+            </h1>
+            <p className="max-w-2xl mx-auto text-lg text-gray-600 dark:text-gray-300">
+              Terminax lets you share your terminal session in real-time,
+              without any hassle. Monitor long-running processes, share output
+              with friends, or embed a terminal in your own application.
+            </p>
+            <div className="bg-gray-100/80 dark:bg-[#0A0A0A]/90 backdrop-blur-sm border border-gray-200 dark:border-gray-700 rounded-lg p-4 max-w-2xl mx-auto mt-8 shadow-lg">
+              <div className="flex items-center">
+                <span className="text-pink-500 dark:text-pink-400 mr-2">
+                  {currentPrompt}
+                </span>
+                <span className="text-gray-900 dark:text-white">
+                  {typedText}
+                  <span className="cursor-blink">█</span>
+                </span>
+              </div>
+              <div className="text-purple-600 dark:text-purple-400 mt-2 flex items-center">
+                <span>serving at https://terminax.io/v/{"{url}"}</span>
+                <img
+                  src={terminaxLogo}
+                  alt="Terminax Logo"
+                  className="h-3 w-3 ml-2 opacity-70"
+                />
+              </div>
+            </div>
+            <div className="flex justify-center flex-wrap gap-4 mt-8">
+              <Button
+                size="lg"
+                className="bg-gray-100/90 hover:bg-gray-200 dark:bg-[#0A0A0A]/90 dark:hover:bg-[#171717] text-gray-800 dark:text-white border border-gray-300 dark:border-gray-700 backdrop-blur-sm shadow-md"
+              >
+                <Copy className="w-4 h-4 mr-2" />
+                Copy Command
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                className="bg-transparent dark:bg-transparent border border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-[#0A0A0A] text-gray-800 dark:text-white backdrop-blur-sm shadow-md"
+              >
+                <ExternalLink className="w-4 h-4 mr-2" />
+                View Demo
+              </Button>
+            </div>
           </div>
-          <div className="text-purple-600 dark:text-purple-400 mt-2">
-            serving at https://terminax.io/v/{"{url}"}
-          </div>
-        </div>          <div className="flex justify-center flex-wrap gap-4 mt-6">
-          <Button size="lg" className="bg-gray-100 dark:bg-[#0A0A0A] hover:bg-gray-200 dark:bg-[#171717] text-gray-800 dark:text-white border border-gray-300 dark:border-gray-700">
-            <Copy className="w-4 h-4 mr-2" />
-            Copy Command
-          </Button>
-          <Button size="lg" variant="outline" className="bg-transparent dark:bg-transparent border border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-[#0A0A0A] text-gray-800 dark:text-white">
-            <ExternalLink className="w-4 h-4 mr-2" />
-            View Demo
-          </Button>
         </div>
       </div>
 
-      <div className="border-t border-dotted border-gray-200 dark:border-gray-700"></div>
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="border-t border-dotted border-gray-200 dark:border-gray-700 mb-16"></div>
 
-      <div id="client" className="space-y-6">
+        <div id="client" className="space-y-6 py-4">
         <h2 className="text-3xl font-bold text-gray-900 dark:text-white text-center">
           A Powerful Client
         </h2>
@@ -91,13 +153,15 @@ export default function HomePage() {
           better experience with more features. Install it via pip:
         </p>
         <div className="flex justify-center">
-          <code className="text-lg bg-gray-100 dark:bg-[#0A0A0A] text-pink-600 dark:text-pink-400 p-2 rounded font-mono">pip install terminax</code>
+          <code className="text-lg bg-gray-100 dark:bg-[#0A0A0A] text-pink-600 dark:text-pink-400 p-2 rounded font-mono">
+            pip install terminax
+          </code>
         </div>
       </div>
 
-      <div className="border-t border-dotted border-gray-200 dark:border-gray-700"></div>
+        <div className="border-t border-dotted border-gray-200 dark:border-gray-700 my-16"></div>
 
-      <div id="examples" className="space-y-8">
+        <div id="examples" className="space-y-8">
         <h2 className="text-3xl font-bold text-gray-900 dark:text-white text-center">
           Usage Examples
         </h2>
@@ -116,10 +180,14 @@ export default function HomePage() {
                 </code>
               </pre>
               <pre>
-                <code className="text-gray-900 dark:text-white font-mono">Epoch 1/1000, loss = 12.483</code>
+                <code className="text-gray-900 dark:text-white font-mono">
+                  Epoch 1/1000, loss = 12.483
+                </code>
               </pre>
               <pre>
-                <code className="text-gray-500 dark:text-gray-500 font-mono">{"{...}"}</code>
+                <code className="text-gray-500 dark:text-gray-500 font-mono">
+                  {"{...}"}
+                </code>
               </pre>
             </div>
           </div>
@@ -138,10 +206,14 @@ export default function HomePage() {
                 </code>
               </pre>
               <pre>
-                <code className="text-gray-900 dark:text-white">=== RUN TestTerminaxBasic</code>
+                <code className="text-gray-900 dark:text-white">
+                  === RUN TestTerminaxBasic
+                </code>
               </pre>
               <pre>
-                <code className="text-gray-500 dark:text-gray-500">{"{...}"}</code>
+                <code className="text-gray-500 dark:text-gray-500">
+                  {"{...}"}
+                </code>
               </pre>
             </div>
           </div>
@@ -165,7 +237,9 @@ export default function HomePage() {
                 </code>
               </pre>
               <pre>
-                <code className="text-gray-500 dark:text-gray-500">{"{...}"}</code>
+                <code className="text-gray-500 dark:text-gray-500">
+                  {"{...}"}
+                </code>
               </pre>
             </div>
           </div>
@@ -184,19 +258,23 @@ export default function HomePage() {
                 </code>
               </pre>
               <pre>
-                <code className="text-gray-500 dark:text-gray-500">{"{5 second delay}"}</code>
+                <code className="text-gray-500 dark:text-gray-500">
+                  {"{5 second delay}"}
+                </code>
               </pre>
               <pre>
-                <code className="text-gray-500 dark:text-gray-500">{"{...}"}</code>
+                <code className="text-gray-500 dark:text-gray-500">
+                  {"{...}"}
+                </code>
               </pre>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="border-t border-dotted border-gray-200 dark:border-gray-700"></div>
+        <div className="border-t border-dotted border-gray-200 dark:border-gray-700 my-16"></div>
 
-      <div id="languages" className="space-y-6">
+        <div id="languages" className="space-y-6">
         <h2 className="text-3xl font-bold text-white text-center">
           Supported Languages
         </h2>
@@ -233,13 +311,14 @@ export default function HomePage() {
         </div>
       </div>
 
-      <div className="border-t border-dotted border-gray-200 dark:border-gray-700"></div>
+        <div className="border-t border-dotted border-gray-200 dark:border-gray-700 my-16"></div>
 
-      <div className="text-center text-gray-600 dark:text-gray-300">
+        <div className="text-center text-gray-600 dark:text-gray-300 py-8">
         <p>
           Feedback and feature requests:{" "}
           <a href="mailto:kushkansal0@gmail.com">support@terminax.io</a>
         </p>
+      </div>
       </div>
     </div>
   );

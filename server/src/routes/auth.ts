@@ -15,23 +15,45 @@ router.get('/github/callback',
   passport.authenticate('github', {
     failureRedirect: process.env.CLIENT_URL || 'http://localhost:5173'
   }),
-  (req: Request, res: Response) => {
-    console.info(`User ${req.user?.username} successfully authenticated`);
+  async (req: Request, res: Response) => {
+    if (req.user) {
+      try {
+        await User.findByIdAndUpdate(req.user.id, { lastLogin: new Date() });
+        console.info(`User ${req.user.username} successfully authenticated`);
+      } catch (error) {
+        console.error('Error updating last login time:', error);
+      }
+    }
     res.redirect(process.env.CLIENT_URL || 'http://localhost:5173/dashboard');
   }
 );
 
-router.get('/status', (req: Request, res: Response) => {
+router.get('/status', async (req: Request, res: Response) => {
   if (req.isAuthenticated() && req.user) {
-    return res.json({
-      isAuthenticated: true,
-      user: {
-        id: req.user.id,
-        username: req.user.username,
-        displayName: req.user.displayName,
-        avatar: req.user.avatar,
+    try {
+      const user = await User.findById(req.user.id);
+      if (!user) {
+        return res.json({ isAuthenticated: false });
       }
-    });
+
+      return res.json({
+        isAuthenticated: true,
+        user: {
+          id: user.id,
+          username: user.username,
+          displayName: user.displayName,
+          avatar: user.avatar,
+          plan: user.plan,
+          stats: user.stats,
+          createdAt: user.createdAt,
+          lastLogin: user.lastLogin,
+          githubConnectedAt: user.lastLogin,
+        }
+      });
+    } catch (error) {
+      console.error('Error fetching user details:', error);
+      return res.status(500).json({ error: 'Failed to fetch user details' });
+    }
   }
   return res.json({ isAuthenticated: false });
 });

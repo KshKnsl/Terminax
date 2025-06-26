@@ -7,6 +7,17 @@ export interface UserInterface extends Document {
   avatar?: string;
   provider: string;
   githubId?: string;
+  plan: {
+    name: string;
+    maxApps: number;
+    maxSessions: number;
+    features: string[];
+  };
+  stats: {
+    totalApps: number;
+    activeSessions: number;
+    totalSessions: number;
+  };
   createdAt: Date;
   lastLogin?: Date;
   updatedAt: Date;
@@ -32,6 +43,51 @@ const UserSchema = new Schema(
     githubId: {
       type: String,
       unique: true,
+    },
+    plan: {
+      name: {
+        type: String,
+        default: "Free Tier",
+      },
+      maxApps: {
+        type: Number,
+        default: 3,
+      },
+      maxSessions: {
+        type: Number,
+        default: 5,
+      },
+      features: {
+        type: [String],
+        default: [
+          "Basic terminal access",
+          "GitHub integration",
+          "3 apps limit",
+          "5 concurrent sessions",
+        ],
+      },
+    },
+    stats: {
+      totalApps: {
+        type: Number,
+        default: 0,
+      },
+      activeSessions: {
+        type: Number,
+        default: 0,
+      },
+      totalSessions: {
+        type: Number,
+        default: 0,
+      },
+    },
+    createdAt: {
+      type: Date,
+      default: Date.now,
+    },
+    lastLogin: {
+      type: Date,
+      default: Date.now,
     },
   },
   { timestamps: true }

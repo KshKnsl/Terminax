@@ -4,8 +4,9 @@ import {
   LogOut,
   User as UserIcon,
   LifeBuoy,
-  Trash2,
+  Trash2
 } from "lucide-react";
+import terminaxLogo from "@/assets/terminax-logo.png";
 import {
   Dialog,
   DialogContent,
@@ -46,14 +47,18 @@ const App = () => {
     <div className="min-h-screen bg-white dark:bg-black text-gray-900 dark:text-gray-200 font-mono">
       <div className="bg-white dark:bg-black border-b border-gray-200 dark:border-gray-700 px-4 py-2 flex items-center justify-between shadow-sm dark:shadow-none">
         <div className="flex items-center space-x-2">
-          <div className="flex space-x-1">
-            <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-            <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-            <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+          <div className="w-3 h-3 bg-purple-500 rounded-full"></div>
+          <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+          <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+          </div><div>
+          <div className="flex items-center">
+            <img src={terminaxLogo} alt="Terminax Logo" className="h-6 w-6 rounded-md shadow-md" />
+            <span className="text-gray-600 dark:text-gray-400 text-sm ml-2 font-semibold">
+              terminax.io
+            </span>
+            
+
           </div>
-          <span className="text-gray-600 dark:text-gray-400 text-sm ml-4">
-            terminax.io — Terminal
-          </span>
         </div>
         <div className="flex items-center">
           {isLoading ? (
@@ -192,7 +197,7 @@ const App = () => {
           path="/dashboard" 
           element={isAuthenticated ? <Dashboard /> : <Navigate to="/" replace />}
         />
-      </Routes>
+       </Routes>
     </div>
   );
 }

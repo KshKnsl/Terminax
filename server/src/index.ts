@@ -7,6 +7,7 @@ import session from 'express-session';
 import passport from 'passport';
 import configurePassport from './config/passport';
 import routes from './routes';
+import userRoutes from './routes/user';
 
 dotenv.config();
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/terminax')
@@ -33,6 +34,8 @@ app.use(passport.initialize());
 app.use(passport.session());
 configurePassport();
 app.use('/', routes);
+app.use('/auth', routes);
+app.use('/user', userRoutes);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

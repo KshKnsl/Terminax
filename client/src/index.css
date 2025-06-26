@@ -2,10 +2,30 @@
 @import "tw-animate-css";
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* Essential cursor blink animation */
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+  }
+}
+
 @keyframes blink {
   50% {
     opacity: 0;
+  }
+}
+
+@keyframes slow-pulse {
+  0% {
+    opacity: 0.5;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: translate(-50%, -50%) scale(1.05);
+  }
+  100% {
+    opacity: 0.5;
+    transform: translate(-50%, -50%) scale(1);
   }
 }
 
@@ -13,13 +33,15 @@
   animation: blink 1s step-end infinite;
 }
 
-/* Selection styling */
+.gradient-pulse {
+  animation: slow-pulse 8s ease-in-out infinite;
+}
+
 ::selection {
   background-color: rgba(168, 85, 247, 0.4);
   color: white;
 }
 
-/* Essential dark mode fixes for dialogs */
 .dark [data-radix-popper-content-wrapper] {
   color-scheme: dark;
 }
@@ -31,32 +53,40 @@
   color-scheme: dark;
 }
 
-/* Custom scrollbar - essential for terminal feel */
 ::-webkit-scrollbar {
   width: 8px;
 }
 
+.dot-pattern {
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.dark .dot-pattern {
+  opacity: 0.6;
+}
+
 ::-webkit-scrollbar-track {
-  background-color: #f3f4f6; /* bg-gray-100 */
+  background-color: #f3f4f6; 
 }
 
 .dark ::-webkit-scrollbar-track {
-  background-color: #111827; /* bg-black */
+  background-color: #111827; 
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: #d1d5db; /* bg-gray-300 */
+  background-color: #d1d5db; 
   border-radius: 0.25rem;
 }
 
 .dark ::-webkit-scrollbar-thumb {
-  background-color: #374151; /* bg-[#171717] */
+  background-color: #374151; 
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background-color: #9ca3af; /* bg-gray-400 */
+  background-color: #9ca3af; 
 }
 
 .dark ::-webkit-scrollbar-thumb:hover {
-  background-color: #4b5563; /* bg-gray-600 */
+  background-color: #4b5563; 
 }
