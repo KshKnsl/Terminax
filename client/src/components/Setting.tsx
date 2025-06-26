@@ -207,7 +207,7 @@ const Setting = () => {
             <div className="p-6">
               <h3 className="font-semibold text-gray-900 dark:text-white mb-4">Account Details</h3>
               <div className="space-y-4">
-                <div>
+                <div className='flex items-center justify-between'>
                   <div className="flex items-center space-x-2 text-sm">
                     <CalendarDays className="w-4 h-4 text-gray-500" />
                     <span className="text-gray-600 dark:text-gray-400">Joined</span>
@@ -216,7 +216,7 @@ const Setting = () => {
                     {formatDate(user?.createdAt || new Date())}
                   </p>
                 </div>
-                <div>
+                <div className='flex items-center justify-between'>
                   <div className="flex items-center space-x-2 text-sm">
                     <CheckCircle2 className="w-4 h-4 text-gray-500" />
                     <span className="text-gray-600 dark:text-gray-400">Plan</span>
@@ -247,10 +247,9 @@ const Setting = () => {
           {/* Danger Zone */}
           <div className="bg-white dark:bg-[#0A0A0A] rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden">
             <div className="p-6">
-              <h3 className="font-semibold text-red-600 dark:text-red-500 mb-4">Danger Zone</h3>
               <div className="rounded-lg bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800/50 p-4">
                 <p className="text-sm text-red-600/80 dark:text-red-400/80 mb-4">
-                  Once you delete your account, there is no going back. Please be certain.
+                  Once deleted, there is no going back.
                 </p>
                 <DeleteAccount>
                   <Button variant="destructive" className="w-full bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-600">

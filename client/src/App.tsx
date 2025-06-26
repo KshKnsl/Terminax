@@ -51,14 +51,12 @@ const App = () => {
           <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
           <div className="w-3 h-3 bg-green-500 rounded-full"></div>
           </div><div>
-          <div className="flex items-center">
+          <button className="flex items-center" onClick={() => navigate('/')}>
             <img src={terminaxLogo} alt="Terminax Logo" className="h-6 w-6 rounded-md shadow-md" />
             <span className="text-gray-600 dark:text-gray-400 text-sm ml-2 font-semibold">
               terminax.io
             </span>
-            
-
-          </div>
+          </button>
         </div>
         <div className="flex items-center">
           {isLoading ? (

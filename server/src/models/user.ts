@@ -21,6 +21,8 @@ export interface UserInterface extends Document {
   createdAt: Date;
   lastLogin?: Date;
   updatedAt: Date;
+  accessToken?: string;
+  refreshToken?: string;
 }
 
 const UserSchema = new Schema(
@@ -89,6 +91,12 @@ const UserSchema = new Schema(
       type: Date,
       default: Date.now,
     },
+    updatedAt: {
+      type: Date,
+      default: Date.now,
+    },
+    accessToken: String,
+    refreshToken: String,
   },
   { timestamps: true }
 );

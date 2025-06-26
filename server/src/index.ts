@@ -6,8 +6,9 @@ import morgan from "morgan";
 import session from 'express-session';
 import passport from 'passport';
 import configurePassport from './config/passport';
-import routes from './routes';
+import authRoutes from './routes/auth';
 import userRoutes from './routes/user';
+import gitRoutes from './routes/github'
 
 dotenv.config();
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/terminax')
@@ -33,9 +34,12 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 configurePassport();
-app.use('/', routes);
-app.use('/auth', routes);
-app.use('/user', userRoutes);
+app.use('/auth', authRoutes);
+app.use('/users', userRoutes);
+app.use('/github', gitRoutes);
+app.get('/', (req, res) => {
+  res.status(200).json({ message: 'Terminax API server' });
+});
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

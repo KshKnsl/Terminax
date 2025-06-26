@@ -2,21 +2,30 @@ import { useState } from "react"
 import { Terminal, Settings, Grid3X3, List, ExternalLink, Plus, Square, Play, RefreshCw, Zap } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
+import GithubRepoSelector from "@/components/GithubRepoSelector"
 import { DotPattern } from "@/components/magicui/dot-pattern"
-import Setting from "./Setting"
+import Setting from "../components/Setting"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 interface Application {
   id: string
   name: string
   repository: string
-  status: "running" | "stopped" | "deploying" | "error"
   url: string
   language: string
   lastDeploy: string
   description: string
 }
 
-export default function Dashboard() {
+export default function Dashboard() 
+{
   const [activeTab, setActiveTab] = useState<"apps" | "settings">("apps")
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
 
@@ -25,7 +34,6 @@ export default function Dashboard() {
       id: "app-1",
       name: "ml-training-monitor",
       repository: "github.com/user/ml-training",
-      status: "running",
       url: "https://terminax.io/v/a1b2c3d4e5f6",
       language: "Python",
       lastDeploy: "2 hours ago",
@@ -35,7 +43,6 @@ export default function Dashboard() {
       id: "app-2",
       name: "build-system",
       repository: "github.com/user/cpp-project",
-      status: "stopped",
       url: "https://terminax.io/v/g7h8i9j0k1l2",
       language: "C++",
       lastDeploy: "1 day ago",
@@ -45,7 +52,6 @@ export default function Dashboard() {
       id: "app-3",
       name: "test-runner",
       repository: "github.com/user/java-tests",
-      status: "deploying",
       url: "https://terminax.io/v/m3n4o5p6q7r8",
       language: "Java",
       lastDeploy: "deploying...",
@@ -55,84 +61,28 @@ export default function Dashboard() {
       id: "app-4",
       name: "log-analyzer",
       repository: "github.com/user/log-tools",
-      status: "running",
       url: "https://terminax.io/v/n4o5p6q7r8s9",
       language: "JavaScript",
       lastDeploy: "30 minutes ago",
       description: "Real-time log analysis tool with pattern matching and alert notifications.",
     },
-    {
-      id: "app-5",
-      name: "data-processor",
-      repository: "github.com/user/data-pipeline",
-      status: "error",
-      url: "https://terminax.io/v/o5p6q7r8s9t0",
-      language: "Python",
-      lastDeploy: "1 hour ago",
-      description: "High-performance data processing pipeline with streaming analytics and visualization.",
-    },
-    {
-      id: "app-6",
-      name: "api-monitor",
-      repository: "github.com/user/api-tools",
-      status: "running",
-      url: "https://terminax.io/v/p6q7r8s9t0u1",
-      language: "Go",
-      lastDeploy: "4 hours ago",
-      description: "API endpoint monitoring with response time tracking and uptime statistics.",
-    },
   ]
 
-  const getStatusBadgeColor = (status: string) => {
-    switch (status) {
-      case "running":
-      case "active":
-        return "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400"
-      case "stopped":
-      case "ended":
-        return "bg-gray-100 text-gray-800 dark:bg-black/20 dark:text-gray-400"
-      case "deploying":
-        return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400"
-      case "error":
-        return "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400"
-      default:
-        return "bg-gray-100 text-gray-800 dark:bg-black/20 dark:text-gray-400"
-    }
+  const getLanguageColor = () => {
+    const colors = [
+      "bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400",
+      "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400",
+      "bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-400",
+      "bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400",
+      "bg-cyan-100 text-cyan-800 dark:bg-cyan-900/20 dark:text-cyan-400",
+      "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400",
+      "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400",
+      "bg-pink-100 text-pink-800 dark:bg-pink-900/20 dark:text-pink-400",
+      "bg-indigo-100 text-indigo-800 dark:bg-indigo-900/20 dark:text-indigo-400",
+    ];
+    return colors[Math.floor(Math.random() * colors.length)];
   }
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case "running":
-      case "active":
-        return <Play className="w-3 h-3" />
-      case "stopped":
-      case "ended":
-        return <Square className="w-3 h-3" />
-      case "deploying":
-        return <RefreshCw className="w-3 h-3 animate-spin" />
-      case "error":
-        return <Zap className="w-3 h-3" />
-      default:
-        return <Terminal className="w-3 h-3" />
-    }
-  }
-
-  const getLanguageColor = (language: string) => {
-    switch (language.toLowerCase()) {
-      case "python":
-        return "bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400"
-      case "javascript":
-        return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400"
-      case "java":
-        return "bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-400"
-      case "c++":
-        return "bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400"
-      case "go":
-        return "bg-cyan-100 text-cyan-800 dark:bg-cyan-900/20 dark:text-cyan-400"
-      default:
-        return "bg-gray-100 text-gray-800 dark:bg-black/20 dark:text-gray-400"
-    }
-  }
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-black">
@@ -155,10 +105,20 @@ export default function Dashboard() {
                 Manage your terminal applications and monitor active sessions
               </p>
             </div>
-            <Button size="lg" className="bg-purple-600 hover:bg-purple-700 text-white shadow-lg">
-              <Plus className="w-4 h-4 mr-2" />
-              Deploy New App
-            </Button>
+            <Dialog>
+              <DialogTrigger>
+                <Button size="lg" className="bg-purple-600 hover:bg-purple-700 text-white shadow-lg">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Deploy New App
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Select a repository from your GitHub account to deploy.</DialogTitle>
+                  <GithubRepoSelector />
+                </DialogHeader>
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
       </div>
@@ -240,7 +200,7 @@ export default function Dashboard() {
                           <span
                             className={cn(
                               "inline-flex items-center px-2 py-1 rounded-full text-xs font-medium",
-                              getLanguageColor(app.language),
+                              getLanguageColor(),
                             )}
                           >
                             {app.language}
@@ -258,19 +218,6 @@ export default function Dashboard() {
                     </div>
 
                     <p className="text-sm text-gray-600 dark:text-gray-300 mb-4 line-clamp-2">{app.description}</p>
-
-                    <div className="flex items-center mb-4">
-                      <span
-                        className={cn(
-                          "inline-flex items-center px-2 py-1 rounded-full text-xs font-medium",
-                          getStatusBadgeColor(app.status),
-                        )}
-                      >
-                        {getStatusIcon(app.status)}
-                        <span className="ml-1 capitalize">{app.status}</span>
-                      </span>
-                    </div>
-
                     <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
                       <div className="text-xs text-gray-500 dark:text-gray-400 truncate">{app.repository}</div>
                     </div>
@@ -296,16 +243,7 @@ export default function Dashboard() {
                               <span
                                 className={cn(
                                   "inline-flex items-center px-2 py-1 rounded-full text-xs font-medium",
-                                  getStatusBadgeColor(app.status),
-                                )}
-                              >
-                                {getStatusIcon(app.status)}
-                                <span className="ml-1 capitalize">{app.status}</span>
-                              </span>
-                              <span
-                                className={cn(
-                                  "inline-flex items-center px-2 py-1 rounded-full text-xs font-medium",
-                                  getLanguageColor(app.language),
+                                  getLanguageColor(),
                                 )}
                               >
                                 {app.language}
@@ -341,4 +279,4 @@ export default function Dashboard() {
       </div>
     </div>
   )
-}
+  }

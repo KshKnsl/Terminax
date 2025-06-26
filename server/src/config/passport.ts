@@ -2,6 +2,12 @@ import passport from 'passport';
 import { Strategy as GitHubStrategy } from 'passport-github2';
 import { User, UserInterface } from '../models/user';
 
+declare global {
+  namespace Express {
+    interface User extends UserInterface {}
+  }
+}
+
 export default function configurePassport(): void {
   passport.serializeUser((user: UserInterface, done) => {
     done(null, user.id);
@@ -22,20 +28,22 @@ export default function configurePassport(): void {
     scope: ['user:email']
   }, async (accessToken: string, refreshToken: string, profile: any, done: any) => {
     try {
-      console.info(`GitHub auth for user ${JSON.stringify(profile)}`);
+      console.info(`GitHub auth for user accessToken ${accessToken}`);
       const userData = {
         username: profile.username,
         displayName: profile.displayName,
         email: profile.emails && profile.emails[0] ? profile.emails[0].value : null,
         avatar: profile.photos && profile.photos[0] ? profile.photos[0].value : null,
         provider: 'github',
-        githubId: profile.id
+        githubId: profile.id,
+        accessToken: accessToken,
+        refreshToken: refreshToken,
       };
       
       const user = await User.findOneAndUpdate(
         { githubId: profile.id },
         userData,
-        { upsert: true, new: true }
+        { new: true }
       );
       
       return done(null, user);

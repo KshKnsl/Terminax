@@ -27,7 +27,7 @@ interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  logout: () => void;
+  logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
 }
 
@@ -35,7 +35,7 @@ const AuthContext = createContext<AuthContextType>({
   user: null,
   isAuthenticated: false,
   isLoading: true,
-  logout: () => {},
+  logout: async () => {},
   refreshUser: async () => {},
 });
 
@@ -43,28 +43,40 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
+const fetchWithAuth = async (url: string, options: RequestInit = {}) => {
+  const response = await fetch(url, {
+    ...options,
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ message: 'An error occurred' }));
+    throw new Error(error.message || 'Network response was not ok');
+  }
+
+  return response.json();
+};
+
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<User | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   const refreshUser = async () => {
-    console.log("Attempting to refresh user status...");
-
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
-      
-      const response = await fetch(`${SERVER_URL}/auth/status`, {
-        method: 'GET',
-        credentials: 'include',
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+      const data = await fetchWithAuth(`${SERVER_URL}/auth/status`, {
         signal: controller.signal
       });
-      
+
       clearTimeout(timeoutId);
-      
-      const data = await response.json();
-      
+
       if (data.isAuthenticated && data.user) {
         setUser(data.user);
         setIsAuthenticated(true);
@@ -83,24 +95,42 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   useEffect(() => {
     refreshUser();
-    
-    // Fallback timer to ensure loading state doesn't get stuck
-    const fallbackTimer = setTimeout(() => {
-      setIsLoading(false);
-    }, 6000); // Slightly longer than the fetch timeout
-    
-    return () => clearTimeout(fallbackTimer);
   }, []);
 
-  const logout = () => {
-    window.location.href = `${SERVER_URL}/auth/logout`;
+  const logout = async () => {
+    try {
+      await fetchWithAuth(`${SERVER_URL}/auth/logout`);
+      setUser(null);
+      setIsAuthenticated(false);
+      window.location.href = '/';
+    } catch (error) {
+      console.error('Error during logout:', error);
+      // Force client-side logout even if server request fails
+      setUser(null);
+      setIsAuthenticated(false);
+      window.location.href = '/';
+    }
+  };
+
+  const value = {
+    user,
+    isAuthenticated,
+    isLoading,
+    logout,
+    refreshUser,
   };
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated, isLoading, logout, refreshUser }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );
 };
 
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};
