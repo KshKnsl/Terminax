@@ -1,6 +1,12 @@
-import { createContext, useState, useEffect, useContext, type ReactNode } from 'react';
+import {
+  createContext,
+  useState,
+  useEffect,
+  useContext,
+  type ReactNode,
+} from "react";
 
-const SERVER_URL = import.meta.env.VITE_SERVER_URL || 'http://localhost:3000';
+const SERVER_URL = import.meta.env.VITE_SERVER_URL || "http://localhost:3000";
 
 interface User {
   id: string;
@@ -46,16 +52,18 @@ interface AuthProviderProps {
 const fetchWithAuth = async (url: string, options: RequestInit = {}) => {
   const response = await fetch(url, {
     ...options,
-    credentials: 'include',
+    credentials: "include",
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
       ...options.headers,
     },
   });
 
   if (!response.ok) {
-    const error = await response.json().catch(() => ({ message: 'An error occurred' }));
-    throw new Error(error.message || 'Network response was not ok');
+    const error = await response
+      .json()
+      .catch(() => ({ message: "An error occurred" }));
+    throw new Error(error.message || "Network response was not ok");
   }
 
   return response.json();
@@ -72,7 +80,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       const timeoutId = setTimeout(() => controller.abort(), 5000);
 
       const data = await fetchWithAuth(`${SERVER_URL}/auth/status`, {
-        signal: controller.signal
+        signal: controller.signal,
       });
 
       clearTimeout(timeoutId);
@@ -85,7 +93,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         setIsAuthenticated(false);
       }
     } catch (error) {
-      console.error('Error checking authentication status:', error);
+      console.error("Error checking authentication status:", error);
       setUser(null);
       setIsAuthenticated(false);
     } finally {
@@ -102,13 +110,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       await fetchWithAuth(`${SERVER_URL}/auth/logout`);
       setUser(null);
       setIsAuthenticated(false);
-      window.location.href = '/';
+      window.location.href = "/";
     } catch (error) {
-      console.error('Error during logout:', error);
-      // Force client-side logout even if server request fails
+      console.error("Error during logout:", error);
       setUser(null);
       setIsAuthenticated(false);
-      window.location.href = '/';
+      window.location.href = "/";
     }
   };
 
@@ -120,17 +127,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     refreshUser,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 };

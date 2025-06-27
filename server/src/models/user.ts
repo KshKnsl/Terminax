@@ -7,13 +7,13 @@ export interface UserInterface extends Document {
   avatar?: string;
   provider: string;
   githubId?: string;
-  plan: {
+  plan?: {
     name: string;
     maxApps: number;
     maxSessions: number;
     features: string[];
   };
-  stats: {
+  stats?: {
     totalApps: number;
     activeSessions: number;
     totalSessions: number;

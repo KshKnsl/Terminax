@@ -1,15 +1,15 @@
-import { useState, useEffect } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import DeleteAccount from '@/components/DeleteAccount';
-import { UserCircle2, Github, User, CalendarDays, CheckCircle2 } from 'lucide-react';
+import { useState, useEffect } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import DeleteAccount from "@/components/DeleteAccount";
+import { UserCircle2, Github, User, CalendarDays, CheckCircle2 } from "lucide-react";
 
-const SERVER_URL = import.meta.env.VITE_SERVER_URL || 'http://localhost:3000';
+const SERVER_URL = import.meta.env.VITE_SERVER_URL || "http://localhost:3000";
 
 const Setting = () => {
   const { user, refreshUser } = useAuth();
-  const [displayName, setDisplayName] = useState(user?.displayName || '');
+  const [displayName, setDisplayName] = useState(user?.displayName || "");
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(user?.avatar || null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -33,25 +33,25 @@ const Setting = () => {
     setSuccess(null);
 
     const formData = new FormData();
-    formData.append('displayName', displayName);
+    formData.append("displayName", displayName);
     if (avatarFile) {
-      formData.append('avatar', avatarFile);
+      formData.append("avatar", avatarFile);
     }
 
     try {
       const response = await fetch(`${SERVER_URL}/user/profile`, {
-        method: 'PUT',
-        credentials: 'include',
+        method: "PUT",
+        credentials: "include",
         body: formData,
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to update profile');
+        throw new Error(errorData.error || "Failed to update profile");
       }
 
       await refreshUser();
-      setSuccess('Profile updated successfully!');
+      setSuccess("Profile updated successfully!");
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -60,10 +60,10 @@ const Setting = () => {
   };
 
   const formatDate = (date: string | Date) => {
-    return new Date(date).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
+    return new Date(date).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     });
   };
 
@@ -80,8 +80,12 @@ const Setting = () => {
                   <User className="w-5 h-5 text-purple-600 dark:text-purple-400" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900 dark:text-white">Profile Information</h3>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Manage your account details</p>
+                  <h3 className="font-semibold text-gray-900 dark:text-white">
+                    Profile Information
+                  </h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    Manage your account details
+                  </p>
                 </div>
               </div>
 
@@ -108,9 +112,12 @@ const Setting = () => {
                     />
                     <label
                       htmlFor="avatar"
-                      className="absolute bottom-0 right-0 bg-purple-500 hover:bg-purple-600 text-white rounded-full p-2 cursor-pointer shadow-lg transform transition-transform duration-200 hover:scale-110"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                      className="absolute bottom-0 right-0 bg-purple-500 hover:bg-purple-600 text-white rounded-full p-2 cursor-pointer shadow-lg transform transition-transform duration-200 hover:scale-110">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-4 w-4"
+                        viewBox="0 0 20 20"
+                        fill="currentColor">
                         <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
                       </svg>
                     </label>
@@ -119,7 +126,9 @@ const Setting = () => {
 
                 <div className="space-y-4">
                   <div>
-                    <label htmlFor="displayName" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    <label
+                      htmlFor="displayName"
+                      className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                       Display Name
                     </label>
                     <Input
@@ -136,18 +145,32 @@ const Setting = () => {
                     <Button
                       type="submit"
                       disabled={isSubmitting}
-                      className="w-full bg-purple-500 hover:bg-purple-600 text-white shadow-sm dark:shadow-purple-900/20"
-                    >
+                      className="w-full bg-purple-500 hover:bg-purple-600 text-white shadow-sm dark:shadow-purple-900/20">
                       {isSubmitting ? (
                         <span className="flex items-center justify-center">
-                          <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                          <svg
+                            className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24">
+                            <circle
+                              className="opacity-25"
+                              cx="12"
+                              cy="12"
+                              r="10"
+                              stroke="currentColor"
+                              strokeWidth="4"
+                            />
+                            <path
+                              className="opacity-75"
+                              fill="currentColor"
+                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                            />
                           </svg>
                           Saving...
                         </span>
                       ) : (
-                        'Save Changes'
+                        "Save Changes"
                       )}
                     </Button>
                   </div>
@@ -176,7 +199,9 @@ const Setting = () => {
                 </div>
                 <div>
                   <h3 className="font-semibold text-gray-900 dark:text-white">GitHub Connection</h3>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Your GitHub account connection details</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    Your GitHub account connection details
+                  </p>
                 </div>
               </div>
 
@@ -187,8 +212,12 @@ const Setting = () => {
                       <Github className="w-6 h-6 text-white dark:text-black" />
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100">@{user?.username}</p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">Connected since {formatDate(user?.githubConnectedAt || new Date())}</p>
+                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                        @{user?.username}
+                      </p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        Connected since {formatDate(user?.githubConnectedAt || new Date())}
+                      </p>
                     </div>
                   </div>
                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200">
@@ -207,7 +236,7 @@ const Setting = () => {
             <div className="p-6">
               <h3 className="font-semibold text-gray-900 dark:text-white mb-4">Account Details</h3>
               <div className="space-y-4">
-                <div className='flex items-center justify-between'>
+                <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-2 text-sm">
                     <CalendarDays className="w-4 h-4 text-gray-500" />
                     <span className="text-gray-600 dark:text-gray-400">Joined</span>
@@ -216,13 +245,13 @@ const Setting = () => {
                     {formatDate(user?.createdAt || new Date())}
                   </p>
                 </div>
-                <div className='flex items-center justify-between'>
+                <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-2 text-sm">
                     <CheckCircle2 className="w-4 h-4 text-gray-500" />
                     <span className="text-gray-600 dark:text-gray-400">Plan</span>
                   </div>
                   <p className="mt-1 text-sm font-medium text-gray-900 dark:text-white">
-                    {user?.plan?.name || 'Free Tier'}
+                    {user?.plan?.name || "Free Tier"}
                   </p>
                 </div>
               </div>
@@ -252,7 +281,9 @@ const Setting = () => {
                   Once deleted, there is no going back.
                 </p>
                 <DeleteAccount>
-                  <Button variant="destructive" className="w-full bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-600">
+                  <Button
+                    variant="destructive"
+                    className="w-full bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-600">
                     Delete Account
                   </Button>
                 </DeleteAccount>

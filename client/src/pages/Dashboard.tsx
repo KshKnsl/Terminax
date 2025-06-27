@@ -1,33 +1,73 @@
-import { useState } from "react"
-import { Terminal, Settings, Grid3X3, List, ExternalLink, Plus, Square, Play, RefreshCw, Zap } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { cn } from "@/lib/utils"
-import GithubRepoSelector from "@/components/GithubRepoSelector"
-import { DotPattern } from "@/components/magicui/dot-pattern"
-import Setting from "../components/Setting"
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Plus, Terminal, Settings, Grid3X3, List, ExternalLink } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { DotPattern } from "@/components/ui/dot-pattern";
+import { cn } from "@/lib/utils";
+import GithubRepoSelector from "@/components/GithubRepoSelector";
+import NewProjectForm from "@/components/NewProjectForm";
+import Setting from "@/components/Setting";
+import { useState } from "react";
 
 interface Application {
-  id: string
-  name: string
-  repository: string
-  url: string
-  language: string
-  lastDeploy: string
-  description: string
+  id: string;
+  name: string;
+  repository: string;
+  url: string;
+  language: string;
+  lastDeploy: string;
+  description: string;
 }
 
-export default function Dashboard() 
-{
-  const [activeTab, setActiveTab] = useState<"apps" | "settings">("apps")
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
+interface Repository {
+  id: number;
+  name: string;
+  full_name: string;
+  private: boolean;
+  description: string | null;
+  html_url: string;
+  languageUrl: string;
+  default_branch: string;
+  branches_url: string;
+  url: string;
+  avatar_url?: string;
+  commitHistory: string;
+}
+
+interface ProjectData {
+  name: string;
+  description: string;
+  branch: string;
+  logo?: File;
+  repositoryId: number;
+  repositoryFullName: string;
+}
+
+export default function Dashboard() {
+  const [activeTab, setActiveTab] = useState<"apps" | "settings">("apps");
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [isProjectDialogOpen, setIsProjectDialogOpen] = useState(false);
+  const [selectedRepo, setSelectedRepo] = useState<Repository | null>(null);
+
+  const handleRepoSelect = (repo: Repository) => {
+    setSelectedRepo(repo);
+  };
+
+  const handleProjectSubmit = async (projectData: ProjectData) => {
+    try {
+      // TODO: Implement the API call to create the project
+      console.log("Creating project with data:", projectData);
+      setIsProjectDialogOpen(false);
+      setSelectedRepo(null);
+    } catch (error) {
+      console.error("Error creating project:", error);
+    }
+  };
 
   const applications: Application[] = [
     {
@@ -37,7 +77,8 @@ export default function Dashboard()
       url: "https://terminax.io/v/a1b2c3d4e5f6",
       language: "Python",
       lastDeploy: "2 hours ago",
-      description: "Real-time machine learning training progress monitor with loss tracking and epoch visualization.",
+      description:
+        "Real-time machine learning training progress monitor with loss tracking and epoch visualization.",
     },
     {
       id: "app-2",
@@ -46,7 +87,8 @@ export default function Dashboard()
       url: "https://terminax.io/v/g7h8i9j0k1l2",
       language: "C++",
       lastDeploy: "1 day ago",
-      description: "Automated C++ build system with real-time compilation output and error reporting.",
+      description:
+        "Automated C++ build system with real-time compilation output and error reporting.",
     },
     {
       id: "app-3",
@@ -55,7 +97,8 @@ export default function Dashboard()
       url: "https://terminax.io/v/m3n4o5p6q7r8",
       language: "Java",
       lastDeploy: "deploying...",
-      description: "Continuous integration test runner with detailed test results and coverage reports.",
+      description:
+        "Continuous integration test runner with detailed test results and coverage reports.",
     },
     {
       id: "app-4",
@@ -66,7 +109,7 @@ export default function Dashboard()
       lastDeploy: "30 minutes ago",
       description: "Real-time log analysis tool with pattern matching and alert notifications.",
     },
-  ]
+  ];
 
   const getLanguageColor = () => {
     const colors = [
@@ -81,8 +124,7 @@ export default function Dashboard()
       "bg-indigo-100 text-indigo-800 dark:bg-indigo-900/20 dark:text-indigo-400",
     ];
     return colors[Math.floor(Math.random() * colors.length)];
-  }
-
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-black">
@@ -105,18 +147,30 @@ export default function Dashboard()
                 Manage your terminal applications and monitor active sessions
               </p>
             </div>
-            <Dialog>
-              <DialogTrigger>
-                <Button size="lg" className="bg-purple-600 hover:bg-purple-700 text-white shadow-lg">
+            <Dialog open={isProjectDialogOpen} onOpenChange={setIsProjectDialogOpen}>
+              <DialogTrigger asChild>
+                <Button
+                  size="lg"
+                  className="bg-purple-600 hover:bg-purple-700 text-white shadow-lg">
                   <Plus className="w-4 h-4 mr-2" />
                   Deploy New App
                 </Button>
               </DialogTrigger>
-              <DialogContent>
+              <DialogContent className="sm:max-w-[600px]">
                 <DialogHeader>
-                  <DialogTitle>Select a repository from your GitHub account to deploy.</DialogTitle>
-                  <GithubRepoSelector />
+                  <DialogTitle>
+                    {selectedRepo ? "Configure Your Project" : "Select a Repository"}
+                  </DialogTitle>
                 </DialogHeader>
+                {selectedRepo ? (
+                  <NewProjectForm
+                    repository={selectedRepo}
+                    onSubmit={handleProjectSubmit}
+                    onBack={() => setSelectedRepo(null)}
+                  />
+                ) : (
+                  <GithubRepoSelector onSelect={handleRepoSelect} />
+                )}
               </DialogContent>
             </Dialog>
           </div>
@@ -130,7 +184,7 @@ export default function Dashboard()
             { id: "apps", label: "Applications", icon: Terminal },
             { id: "settings", label: "Settings", icon: Settings },
           ].map((tab) => {
-            const IconComponent = tab.icon
+            const IconComponent = tab.icon;
             return (
               <button
                 key={tab.id}
@@ -139,13 +193,12 @@ export default function Dashboard()
                   "flex items-center px-4 py-2 rounded-lg font-medium transition-all",
                   activeTab === tab.id
                     ? "bg-purple-100 text-purple-700 dark:bg-purple-900/20 dark:text-purple-400"
-                    : "text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#0A0A0A]",
-                )}
-              >
+                    : "text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#0A0A0A]"
+                )}>
                 <IconComponent className="w-4 h-4 mr-2" />
                 {tab.label}
               </button>
-            )
+            );
           })}
         </div>
 
@@ -162,9 +215,8 @@ export default function Dashboard()
                       "p-2 rounded-md transition-all",
                       viewMode === "grid"
                         ? "bg-purple-100 text-purple-600 dark:bg-purple-900/20 dark:text-purple-400"
-                        : "text-gray-400 hover:text-gray-600 dark:hover:text-gray-300",
-                    )}
-                  >
+                        : "text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                    )}>
                     <Grid3X3 className="w-4 h-4" />
                   </button>
                   <button
@@ -173,9 +225,8 @@ export default function Dashboard()
                       "p-2 rounded-md transition-all",
                       viewMode === "list"
                         ? "bg-purple-100 text-purple-600 dark:bg-purple-900/20 dark:text-purple-400"
-                        : "text-gray-400 hover:text-gray-600 dark:hover:text-gray-300",
-                    )}
-                  >
+                        : "text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                    )}>
                     <List className="w-4 h-4" />
                   </button>
                 </div>
@@ -188,21 +239,21 @@ export default function Dashboard()
                 {applications.map((app) => (
                   <div
                     key={app.id}
-                    className="bg-white dark:bg-[#0A0A0A] rounded-xl border border-gray-200 dark:border-gray-700 p-6 hover:shadow-lg transition-all duration-200 hover:border-purple-300 dark:hover:border-purple-600"
-                  >
+                    className="bg-white dark:bg-[#0A0A0A] rounded-xl border border-gray-200 dark:border-gray-700 p-6 hover:shadow-lg transition-all duration-200 hover:border-purple-300 dark:hover:border-purple-600">
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex items-center space-x-3">
                         <div className="w-10 h-10 bg-purple-100 dark:bg-purple-900/20 rounded-lg flex items-center justify-center">
                           <Terminal className="w-5 h-5 text-purple-600 dark:text-purple-400" />
                         </div>
                         <div>
-                          <h3 className="font-semibold text-gray-900 dark:text-white">{app.name}</h3>
+                          <h3 className="font-semibold text-gray-900 dark:text-white">
+                            {app.name}
+                          </h3>
                           <span
                             className={cn(
                               "inline-flex items-center px-2 py-1 rounded-full text-xs font-medium",
-                              getLanguageColor(),
-                            )}
-                          >
+                              getLanguageColor()
+                            )}>
                             {app.language}
                           </span>
                         </div>
@@ -217,9 +268,13 @@ export default function Dashboard()
                       </div>
                     </div>
 
-                    <p className="text-sm text-gray-600 dark:text-gray-300 mb-4 line-clamp-2">{app.description}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-300 mb-4 line-clamp-2">
+                      {app.description}
+                    </p>
                     <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-                      <div className="text-xs text-gray-500 dark:text-gray-400 truncate">{app.repository}</div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                        {app.repository}
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -231,7 +286,9 @@ export default function Dashboard()
               <div className="bg-white dark:bg-[#0A0A0A] rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
                 <div className="divide-y divide-gray-200 dark:divide-gray-700">
                   {applications.map((app) => (
-                    <div key={app.id} className="p-6 hover:bg-gray-50 dark:hover:bg-[#171717]/50 transition-colors">
+                    <div
+                      key={app.id}
+                      className="p-6 hover:bg-gray-50 dark:hover:bg-[#171717]/50 transition-colors">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-4">
                           <div className="w-10 h-10 bg-purple-100 dark:bg-purple-900/20 rounded-lg flex items-center justify-center">
@@ -239,18 +296,23 @@ export default function Dashboard()
                           </div>
                           <div>
                             <div className="flex items-center space-x-3">
-                              <h3 className="font-semibold text-gray-900 dark:text-white">{app.name}</h3>
+                              <h3 className="font-semibold text-gray-900 dark:text-white">
+                                {app.name}
+                              </h3>
                               <span
                                 className={cn(
                                   "inline-flex items-center px-2 py-1 rounded-full text-xs font-medium",
-                                  getLanguageColor(),
-                                )}
-                              >
+                                  getLanguageColor()
+                                )}>
                                 {app.language}
                               </span>
                             </div>
-                            <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">{app.description}</p>
-                            <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">{app.repository}</div>
+                            <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
+                              {app.description}
+                            </p>
+                            <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                              {app.repository}
+                            </div>
                           </div>
                         </div>
                         <div className="flex items-center space-x-6">
@@ -273,10 +335,8 @@ export default function Dashboard()
         )}
 
         {/* Settings Tab */}
-        {activeTab === "settings" && (
-          <Setting />
-        )}
+        {activeTab === "settings" && <Setting />}
       </div>
     </div>
-  )
-  }
+  );
+}

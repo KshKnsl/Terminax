@@ -15,11 +15,16 @@ const transporter = nodemailer.createTransport({
 type EmailOptions = {
   name: string;
   toEmail: string;
-  purpose: 'CreateAccount' | 'Login' | string;
+  purpose: "CreateAccount" | "Login" | string;
   message?: string;
 };
 
-async function sendMail(name: string, toEmail: string, purpose: string, message?: string): Promise<void> {
+async function sendMail(
+  name: string,
+  toEmail: string,
+  purpose: string,
+  message?: string
+): Promise<void> {
   const emailTemplate = new EmailTemplate(name, purpose, message);
   const { subject, content } = emailTemplate.getContent();
 
@@ -31,8 +36,8 @@ async function sendMail(name: string, toEmail: string, purpose: string, message?
       html: content,
     });
   } catch (error) {
-    console.error('Failed to send email:', error);
-    throw new Error('Failed to send email');
+    console.error("Failed to send email:", error);
+    throw new Error("Failed to send email");
   }
 }
 

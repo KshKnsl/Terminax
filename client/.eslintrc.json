@@ -1,0 +1,22 @@
+{
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:react/recommended"
+  ],
+  "parser": "@typescript-eslint/parser",
+  "plugins": ["@typescript-eslint", "react"],
+  "rules": {
+    "brace-style": ["error", "allman", { "allowSingleLine": false }],
+    "@typescript-eslint/brace-style": ["error", "allman", { "allowSingleLine": false }],
+    "indent": ["error", 2],
+    "curly": ["error", "all"],
+    "react/jsx-first-prop-new-line": ["error", "multiline"],
+    "react/jsx-max-props-per-line": ["error", { "maximum": 1, "when": "multiline" }]
+  },
+  "settings": {
+    "react": {
+      "version": "detect"
+    }
+  }
+}

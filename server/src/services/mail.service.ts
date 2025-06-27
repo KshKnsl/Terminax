@@ -1,6 +1,6 @@
 import nodemailer from "nodemailer";
 import dotenv from "dotenv";
-import { EmailTemplate } from '../utils/emailTemplates';
+import { EmailTemplate } from "../utils/emailTemplates";
 
 dotenv.config();
 
@@ -13,7 +13,12 @@ export class MailService {
     },
   });
 
-  static async sendMail(name: string, toEmail: string, purpose: string, message?: string): Promise<void> {
+  static async sendMail(
+    name: string,
+    toEmail: string,
+    purpose: string,
+    message?: string
+  ): Promise<void> {
     const template = new EmailTemplate(name, purpose, message);
     const { subject, content } = template.getContent();
 
@@ -25,7 +30,7 @@ export class MailService {
         html: content,
       });
     } catch (error) {
-      console.error('Error sending email:', error);
+      console.error("Error sending email:", error);
     }
   }
 }

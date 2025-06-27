@@ -16,9 +16,15 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/terminax'
 .catch(err => console.error(`MongoDB connection error: ${err}`));
 
 const app = express();
+
+// Ensure secure cookies in production
+const isProduction = process.env.NODE_ENV === 'production';
+
 app.use(cors({
   origin: process.env.CLIENT_URL || 'http://localhost:5173',
-  credentials: true
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -26,15 +32,33 @@ app.use(morgan("dev"));
 
 app.use(session({
   secret: process.env.SESSION_SECRET || 'default_secret_key',
+  resave: false,
+  saveUninitialized: false,
   cookie: { 
-    maxAge: 24 * 60 * 60 * 1000
+    secure: isProduction,
+    httpOnly: true,
+    sameSite: isProduction ? 'strict' : 'lax',
+    maxAge: 24 * 60 * 60 * 1000 // 24 hours
   }
 }));
 
 app.use(passport.initialize());
 app.use(passport.session());
 configurePassport();
+
+// Add session check middleware
+app.use((req, res, next) => {
+  if (req.path.startsWith('/auth') || req.path === '/') {
+    return next();
+  }
+  if (!req.isAuthenticated()) {
+    return res.status(401).json({ error: 'Unauthorized', message: 'No active session found' });
+  }
+  next();
+});
+
 app.use('/auth', authRoutes);
+app.use('/user', userRoutes);
 app.use('/users', userRoutes);
 app.use('/github', gitRoutes);
 app.get('/', (req, res) => {

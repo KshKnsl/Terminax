@@ -1,31 +1,13 @@
-import multer from 'multer';
-import path from 'path';
+import multer from "multer"
+import path from "path"
 
-interface MulterDestinationCallback {
-    (error: Error | null, destination: string): void;
-}
-
-interface MulterFilenameCallback {
-    (error: Error | null, filename: string): void;
-}
+type MulterCallback = (error: Error | null, value: string) => void
 
 const storage = multer.diskStorage({
-        destination: function (
-                req: Express.Request, 
-                file: any,
-                cb: MulterDestinationCallback
-        ) {
-                cb(null, 'uploads/')
-        },
-        filename: function (
-                req: Express.Request, 
-                file: any,
-                cb: MulterFilenameCallback
-        ) {
-                cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname))
-        }
-});
+  destination: (_req: Express.Request, _file: Express.Multer.File, cb: MulterCallback) => cb(null, "uploads/"),
+  filename: (_req: Express.Request, file: Express.Multer.File, cb: MulterCallback) => {
+    cb(null, `${file.fieldname}-${Date.now()}${path.extname(file.originalname)}`)
+  }
+})
 
-const upload = multer({ storage: storage });
-
-export default upload;
+export default multer({ storage })

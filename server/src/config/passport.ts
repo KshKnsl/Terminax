@@ -1,6 +1,6 @@
-import passport from 'passport';
-import { Strategy as GitHubStrategy } from 'passport-github2';
-import { User, UserInterface } from '../models/user';
+import passport from "passport"
+import { Strategy as GitHubStrategy } from "passport-github2"
+import { User, UserInterface } from "../models/user"
 
 declare global {
   namespace Express {
@@ -9,47 +9,63 @@ declare global {
 }
 
 export default function configurePassport(): void {
+  // Store only user ID in session
   passport.serializeUser((user: UserInterface, done) => {
-    done(null, user.id);
-  });
-  passport.deserializeUser(async (id: string, done) => {
-    try {
-      const user = await User.findById(id);
-      done(null, user);
-    } catch (err) {
-      done(err, null);
-    }
-  });
+    done(null, user.id)
+  })
 
-  passport.use(new GitHubStrategy({
-    clientID: process.env.GITHUB_CLIENT_ID || '',
-    clientSecret: process.env.GITHUB_CLIENT_SECRET || '',
-    callbackURL: process.env.GITHUB_CALLBACK_URL || 'http://localhost:3001/auth/github/callback',
-    scope: ['user:email']
-  }, async (accessToken: string, refreshToken: string, profile: any, done: any) => {
-    try {
-      console.info(`GitHub auth for user accessToken ${accessToken}`);
-      const userData = {
-        username: profile.username,
-        displayName: profile.displayName,
-        email: profile.emails && profile.emails[0] ? profile.emails[0].value : null,
-        avatar: profile.photos && profile.photos[0] ? profile.photos[0].value : null,
-        provider: 'github',
-        githubId: profile.id,
-        accessToken: accessToken,
-        refreshToken: refreshToken,
-      };
-      
-      const user = await User.findOneAndUpdate(
-        { githubId: profile.id },
-        userData,
-        { new: true }
-      );
-      
-      return done(null, user);
-    } catch (err: any) {
-      console.error(`Error in GitHub auth: ${err.message}`);
-      return done(err, null);
+  // Retrieve user from database using session ID
+  passport.deserializeUser(async (id: string, done) => {
+    const user = await User.findById(id)
+
+    if (!user) {
+      return done(null, false)
     }
-  }));
+
+    return done(null, user)
+  })
+
+  passport.use(
+    new GitHubStrategy(
+      {
+        clientID: process.env.GITHUB_CLIENT_ID || "",
+        clientSecret: process.env.GITHUB_CLIENT_SECRET || "",
+        callbackURL: process.env.GITHUB_CALLBACK_URL || "http://localhost:3000/auth/github/callback",
+        scope: ["user:email", "repo"]
+      },
+      handleGitHubCallback
+    )
+  )
+}
+
+async function handleGitHubCallback(accessToken: string, refreshToken: string, profile: any, done: any) {
+  const userData = {
+    username: profile.username,
+    displayName: profile.displayName || profile.username,
+    email: profile.emails?.[0]?.value || null,
+    avatar: profile.photos?.[0]?.value || null,
+    provider: "github",
+    githubId: profile.id,
+    accessToken,
+    refreshToken
+  }
+
+  const existingUser = await User.findOne({ githubId: profile.id })
+
+  let user = null
+  if (existingUser) {
+    const { avatar, displayName, ...updatableData } = userData
+    user = await User.findOneAndUpdate({ githubId: profile.id }, updatableData, {
+      new: true
+    })
+  } else {
+    user = await User.create(userData)
+  }
+
+  if (!user) {
+    console.error("Failed to save user data")
+    return done(new Error("Authentication failed"), null)
+  }
+
+  return done(null, user)
 }
