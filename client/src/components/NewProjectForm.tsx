@@ -21,14 +21,6 @@ interface Repository {
   commitHistory: string;
 }
 
-interface Branch {
-  name: string;
-  commit: {
-    sha: string;
-    url: string;
-  };
-}
-
 interface NewProjectFormProps {
   repository: Repository;
   onSubmit: (projectData: ProjectData) => void;
@@ -37,172 +29,218 @@ interface NewProjectFormProps {
 
 interface ProjectData {
   name: string;
-  description: string;
-  branch: string;
-  logo?: File;
-  repositoryId: number;
-  repositoryFullName: string;
+  repoid: string;
+  logo_url: string;
+  repo_url: string;
+  repo_name: string;
+  branch_url: string;
+  description?: string;
+  languages_url: string;
+  selected_branch: string;
+  commithistory_url: string;
 }
 
 const NewProjectForm: React.FC<NewProjectFormProps> = ({ repository, onSubmit, onBack }) => {
-  const [branches, setBranches] = useState<Branch[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [selectedBranch, setSelectedBranch] = useState(repository.default_branch);
-  const [logo, setLogo] = useState<File | null>(null);
-  const [logoPreview, setLogoPreview] = useState<string>("");
-  const [formData, setFormData] = useState<Partial<ProjectData>>({
+  const [project, setProject] = useState({
     name: repository.name,
     description: repository.description || "",
-    branch: repository.default_branch,
-    repositoryId: repository.id,
-    repositoryFullName: repository.full_name,
+    selected_branch: repository.default_branch,
+    logo: null as File | null,
+    logoPreview: repository.avatar_url || "",
+    repoid: repository.id.toString(),
+    repo_url: repository.html_url,
+    repo_name: repository.full_name,
+    branch_url: repository.branches_url,
+    languages_url: repository.languageUrl,
+    commithistory_url: repository.commitHistory,
+    logo_url: repository.avatar_url || "",
   });
+  const [branches, setBranches] = useState<string[]>([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchBranches = async () => {
+      setLoading(true);
       try {
-        setLoading(true);
-        const response = await fetch(repository.branches_url, {
-          headers: {
-            Accept: "application/vnd.github.v3+json",
-          },
-        });
+        const response = await fetch(
+          `${SERVER_URL}/github/branches?branchUrl=${encodeURIComponent(repository.branches_url)}`,
+          {
+            credentials: "include",
+          }
+        );
 
-        if (!response.ok) {
-          throw new Error("Failed to fetch branches");
-        }
-
+        if (!response.ok) throw new Error("Failed to fetch branches");
         const data = await response.json();
-        setBranches(data);
+        setBranches(data.branches.map((branch: { name: string }) => branch.name) || []);
+        console.log(data.branches);
       } catch (error) {
-        console.error("Error fetching branches:", error);
+        console.error("Error:", error);
+        setBranches([repository.default_branch]);
       } finally {
         setLoading(false);
       }
     };
 
     fetchBranches();
-  }, [repository.branches_url]);
+  }, [repository.full_name, repository.default_branch]);
 
-  const handleLogoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      setLogo(file);
+  const updateField = (field: string, value: string | File | null) => {
+    setProject((prev) => ({ ...prev, [field]: value }));
+
+    if (field === "logo" && value instanceof File) {
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setLogoPreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+      reader.onload = (e) =>
+        setProject((prev) => ({ ...prev, logoPreview: e.target?.result as string }));
+      reader.readAsDataURL(value);
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (formData.name && formData.branch) {
-      onSubmit({
-        ...(formData as ProjectData),
-        logo: logo || undefined,
-      });
+    if (!project.name || loading) return;
+
+    // Only upload new logo if user selected a custom one
+    if (project.logo) {
+      const formData = new FormData();
+      formData.append("logo", project.logo);
+      try {
+        const uploadResponse = await fetch(`${SERVER_URL}/upload`, {
+          method: "POST",
+          credentials: "include",
+          body: formData,
+        });
+        if (uploadResponse.ok) {
+          const { url } = await uploadResponse.json();
+          project.logo_url = url;
+        }
+      } catch (error) {
+        console.error("Logo upload failed:", error);
+        project.logo_url = repository.avatar_url || "";
+      }
     }
+
+    onSubmit({
+      name: project.name,
+      description: project.description,
+      selected_branch: project.selected_branch,
+      repoid: project.repoid,
+      repo_url: project.repo_url,
+      repo_name: project.repo_name,
+      branch_url: project.branch_url,
+      languages_url: project.languages_url,
+      commithistory_url: project.commithistory_url,
+      logo_url: project.logo_url,
+    });
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="space-y-4">
-        <div>
-          <Label>Project Logo</Label>
-          <div className="mt-2 flex items-center space-x-4">
-            <div className="w-16 h-16 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-700 flex items-center justify-center overflow-hidden">
-              {logoPreview ? (
-                <img
-                  src={logoPreview}
-                  alt="Project logo preview"
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <Upload className="w-6 h-6 text-gray-400" />
-              )}
-            </div>
-            <div>
-              <Input
-                type="file"
-                accept="image/*"
-                onChange={handleLogoChange}
-                className="hidden"
-                id="logo-upload"
-              />
-              <Label
-                htmlFor="logo-upload"
-                className="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 cursor-pointer">
-                Upload Logo
-              </Label>
-            </div>
+        {/* Logo Upload */}
+        <div className="flex items-center gap-4">
+          <div className="group relative w-16 h-16 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-700 flex items-center justify-center overflow-hidden hover:border-purple-500 dark:hover:border-purple-400 transition-colors">
+            {project.logoPreview ? (
+              <>
+                <img src={project.logoPreview} alt="Logo" className="w-full h-full object-cover" />
+                <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                  <Upload className="w-6 h-6 text-white" />
+                </div>
+              </>
+            ) : (
+              <Upload className="w-6 h-6 text-gray-400" />
+            )}
+            <Input
+              type="file"
+              accept="image/*"
+              onChange={(e) => updateField("logo", e.target.files?.[0] || null)}
+              className="absolute inset-0 opacity-0 cursor-pointer"
+              title="Change logo"
+            />
+          </div>
+          <div className="flex-1">
+            <Label htmlFor="logo" className="text-sm text-gray-600 dark:text-gray-400">
+              Project Logo
+            </Label>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              {project.logo ? project.logo.name : "Using repository avatar as default"}
+            </p>
           </div>
         </div>
 
-        <div>
-          <Label htmlFor="name">Project Name</Label>
-          <Input
-            id="name"
-            value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            className="mt-1"
-            required
-          />
-        </div>
+        {/* Project Details */}
+        <div className="grid gap-4">
+          <div>
+            <Label htmlFor="name">Name</Label>
+            <Input
+              id="name"
+              value={project.name}
+              onChange={(e) => updateField("name", e.target.value)}
+              className="mt-1"
+              required
+            />
+          </div>
 
-        <div>
-          <Label htmlFor="description">Description</Label>
-          <textarea
-            id="description"
-            value={formData.description}
-            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-            className="mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#0A0A0A] px-3 py-2 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-            rows={3}
-          />
-        </div>
+          <div>
+            <Label htmlFor="repo_name">Repository</Label>
+            <Input
+              id="repo_name"
+              value={project.repo_name}
+              className="mt-1 text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-purple-900/30"
+              disabled
+            />
+          </div>
 
-        <div>
-          <Label htmlFor="branch">Branch</Label>
-          <div className="relative mt-1">
-            <select
-              id="branch"
-              value={selectedBranch}
-              onChange={(e) => {
-                setSelectedBranch(e.target.value);
-                setFormData({ ...formData, branch: e.target.value });
-              }}
-              className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#0A0A0A] px-3 py-2 pr-10 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-purple-500 focus:border-transparent appearance-none"
-              disabled={loading}>
-              {loading ? (
-                <option>Loading branches...</option>
-              ) : (
-                branches.map((branch) => (
-                  <option key={branch.commit.sha} value={branch.name}>
-                    {branch.name}
-                  </option>
-                ))
-              )}
-            </select>
-            <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-              {loading ? (
-                <Loader2 className="w-4 h-4 text-gray-400 animate-spin" />
-              ) : (
-                <GitBranch className="w-4 h-4 text-gray-400" />
-              )}
+          <div>
+            <Label htmlFor="description">Description</Label>
+            <textarea
+              id="description"
+              value={project.description}
+              onChange={(e) => updateField("description", e.target.value)}
+              className="mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#0A0A0A] px-3 py-2 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              rows={3}
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="branch">Branch</Label>
+            <div className="relative mt-1">
+              <select
+                id="branch"
+                value={project.selected_branch}
+                onChange={(e) => updateField("selected_branch", e.target.value)}
+                className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#0A0A0A] px-3 py-2 pr-10 focus:ring-2 focus:ring-purple-500 focus:border-transparent appearance-none"
+                disabled={loading}>
+                {loading ? (
+                  <option>Loading branches...</option>
+                ) : (
+                  branches.map((branch) => (
+                    <option key={branch} value={branch}>
+                      {branch}
+                    </option>
+                  ))
+                )}
+              </select>
+              <div className="absolute right-2 top-1/2 -translate-y-1/2">
+                {loading ? (
+                  <Loader2 className="w-4 h-4 text-gray-400 animate-spin" />
+                ) : (
+                  <GitBranch className="w-4 h-4 text-gray-400" />
+                )}
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="flex items-center justify-end space-x-4 pt-4 border-t border-gray-200 dark:border-gray-800">
+      {/* Form Actions */}
+      <div className="flex justify-end gap-4 pt-4 border-t border-gray-200 dark:border-gray-800">
         <Button type="button" variant="outline" onClick={onBack}>
           Back
         </Button>
         <Button
           type="submit"
           className="bg-purple-600 hover:bg-purple-700 text-white"
-          disabled={loading || !formData.name || !formData.branch}>
+          disabled={loading || !project.name}>
           Create Project
         </Button>
       </div>

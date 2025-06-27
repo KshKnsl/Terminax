@@ -23,13 +23,7 @@ router.get(
 router.get("/status", (req: Request, res: Response) => {
   res.json({
     isAuthenticated: req.isAuthenticated(),
-    user: req.user
-      ? {
-          id: req.user.id,
-          username: req.user.username,
-          avatar: req.user.avatar,
-        }
-      : null,
+    user: req.user,
   });
 });
 

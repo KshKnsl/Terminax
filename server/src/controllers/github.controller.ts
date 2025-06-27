@@ -4,17 +4,12 @@ import axios from "axios";
 
 export class GitHubController {
   static async getRepositories(req: Request, res: Response): Promise<void> {
-    if (!req.isAuthenticated() || !req.user) {
+    if (!req.isAuthenticated() || !req.user || !req.user.accessToken) {
       res.status(401).json({ error: "Unauthorized" });
       return;
     }
 
     const user = req.user as UserInterface;
-
-    if (!user.accessToken) {
-      res.status(401).json({ error: "GitHub access token not found" });
-      return;
-    }
 
     const response = await axios
       .get("https://api.github.com/user/repos", {
@@ -47,56 +42,63 @@ export class GitHubController {
       repositories: response.data,
     });
   }
-
-  static async getPublicRepository(req: Request, res: Response): Promise<void> {
-    const { owner, repo } = req.params;
-
-    if (!owner || !repo) {
-      res.status(400).json({ error: "Owner and repository name are required" });
+  static async getBranches(req: Request, res: Response): Promise<void> {
+    const user = req.user;
+    if (!req.isAuthenticated() || !req.user || !req.user.accessToken) {
+      res.status(401).json({ error: "Unauthorized" });
       return;
     }
 
-    const response = await axios
-      .get(`https://api.github.com/repos/${owner}/${repo}`, {
-        headers: {
-          Accept: "application/vnd.github.v3+json",
-        },
-      })
-      .catch((error) => {
-        console.error(`Error fetching public repository ${owner}/${repo}:`, error.message);
-        return null;
-      });
-
-    if (!response) {
-      res.status(404).json({ error: "Repository not found or is private" });
+    const { branchUrl } = req.query;
+    
+    if (!branchUrl || typeof branchUrl !== 'string') {
+      res.status(400).json({ error: "Missing branch URL parameter" });
       return;
     }
+    
+    const decodedUrl = decodeURIComponent(branchUrl);
+
+    console.log("Branch URL:", decodedUrl);
+    const response = await axios.get(`${decodedUrl}`, {
+      headers: {
+        Accept: "application/vnd.github.v3+json",
+        Authorization: `Bearer ${user?.accessToken}`,
+      },
+    });
 
     res.json({
       success: true,
-      repository: response.data,
+      branches: response.data,
+    });
+  } 
+  static async getLanguages(req: Request, res: Response): Promise<void> {
+    const user = req.user;
+    const { languages_url } = req.params;
+
+    console.log("Languages URL:", languages_url);
+    const response = await axios.get(`${languages_url}`, {
+      headers: {
+        Accept: "application/vnd.github.v3+json",
+        Authorization: `Bearer ${user?.accessToken}`,
+      },
+    });
+
+    res.json({
+      success: true,
+      branches: response.data,
     });
   }
+  static async getCommitsData(req: Request, res: Response): Promise<void> {
+    const user = req.user;
+    const { commithistory_url } = req.params;
 
-  static async getBranches(req: Request, res: Response): Promise<void> {
-    const { branchUrl } = req.params;
-
-    console.log("Branch URL:", branchUrl);
-    const response = await axios
-      .get(`${branchUrl}`, {
-        headers: {
-          Accept: "application/vnd.github.v3+json",
-        },
-      })
-      .catch((error) => {
-        console.error(`Error fetching branches for ${branchUrl}:`, error.message);
-        return null;
-      });
-
-    if (!response) {
-      res.status(404).json({ error: "Repository not found or is private" });
-      return;
-    }
+    console.log("Commit History URL:", commithistory_url);
+    const response = await axios.get(`${commithistory_url}`, {
+      headers: {
+        Accept: "application/vnd.github.v3+json",
+        Authorization: `Bearer ${user?.accessToken}`,
+      },
+    });
 
     res.json({
       success: true,

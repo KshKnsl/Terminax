@@ -27,9 +27,15 @@ interface GithubRepoSelectorProps {
 const GithubRepoSelector: React.FC<GithubRepoSelectorProps> = ({ onSelect }) => {
   const [repoList, setRepoList] = useState<Repository[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [repoUrl, setRepoUrl] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedRepoId, setSelectedRepoId] = useState<number | null>(null);
+
+  const handleRepoSelect = (repo: Repository) => {
+    setSelectedRepoId(repo.id);
+    onSelect?.(repo);
+  };
 
   // Load repositories when component mounts
   useEffect(() => {
@@ -67,7 +73,7 @@ const GithubRepoSelector: React.FC<GithubRepoSelectorProps> = ({ onSelect }) => 
       html_url: repo.html_url,
       languageUrl: repo.languages_url,
       default_branch: repo.default_branch,
-      branches_url: repo.branches_url.replace("{/branch}", ""),
+      branches_url: repo.branches_url,
       url: repo.url,
       avatar_url: repo.owner.avatar_url,
       commitHistory: repo.url + "/commits",
@@ -77,9 +83,55 @@ const GithubRepoSelector: React.FC<GithubRepoSelectorProps> = ({ onSelect }) => 
     setLoading(false);
   };
 
-  const handleRepoSelect = (repo: Repository) => {
-    setSelectedRepoId(repo.id);
-    onSelect?.(repo);
+  const fetchPublicRepo = async (url: string) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const repoRegex = /github\.com\/([^/]+)\/([^/]+)/;
+      const match = url.match(repoRegex);
+
+      if (!match) {
+        setError("Invalid GitHub repository URL");
+        setLoading(false);
+        return;
+      }
+
+      const [, owner, repo] = match;
+      const apiUrl = `https://api.github.com/repos/${owner}/${repo}`;
+      const response = await fetch(apiUrl);
+
+      if (!response.ok) {
+        setError("Repository not found or is private");
+        setLoading(false);
+        return;
+      }
+
+      const data = await response.json();
+      const repoData: Repository = {
+        id: data.id,
+        name: data.name,
+        full_name: data.full_name,
+        private: data.private,
+        description: data.description,
+        html_url: data.html_url,
+        languageUrl: data.languages_url,
+        default_branch: data.default_branch,
+        branches_url: data.branches_url,
+        url: data.url,
+        avatar_url: data.owner.avatar_url,
+        commitHistory: data.url + "/commits",
+      };
+
+      // Add to the top of the list and select it
+      setRepoList((prevList) => [repoData, ...prevList.filter((r) => r.id !== repoData.id)]);
+      handleRepoSelect(repoData);
+      setRepoUrl("");
+    } catch (err) {
+      setError("Failed to fetch repository details");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const filteredRepos = repoList.filter(
@@ -105,9 +157,24 @@ const GithubRepoSelector: React.FC<GithubRepoSelectorProps> = ({ onSelect }) => 
   }
 
   return (
-    <div className="space-y-4">
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-purple-400 h-4 w-4" />
+    <>
+      <div className="space-y-2">
+        <div className="relative">
+          <input
+            type="text"
+            placeholder="Paste GitHub repository URL..."
+            value={repoUrl}
+            onChange={(e) => setRepoUrl(e.target.value)}
+            className="w-full pl-4 pr-24 py-2 border border-gray-200 dark:border-gray-800 rounded-lg bg-white dark:bg-[#0A0A0A] text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
+          />
+          <Button
+            onClick={() => repoUrl && fetchPublicRepo(repoUrl)}
+            className="absolute right-2 top-1/2 transform -translate-y-1/2"
+            size="sm"
+            disabled={!repoUrl}>
+            Add Repo
+          </Button>
+        </div>
         <input
           type="text"
           placeholder="Search repositories..."
@@ -173,7 +240,7 @@ const GithubRepoSelector: React.FC<GithubRepoSelectorProps> = ({ onSelect }) => 
           ))
         )}
       </div>
-    </div>
+    </>
   );
 };
 

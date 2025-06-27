@@ -1,10 +1,4 @@
-import {
-  createContext,
-  useState,
-  useEffect,
-  useContext,
-  type ReactNode,
-} from "react";
+import { createContext, useState, useEffect, useContext, type ReactNode } from "react";
 
 const SERVER_URL = import.meta.env.VITE_SERVER_URL || "http://localhost:3000";
 
@@ -60,9 +54,7 @@ const fetchWithAuth = async (url: string, options: RequestInit = {}) => {
   });
 
   if (!response.ok) {
-    const error = await response
-      .json()
-      .catch(() => ({ message: "An error occurred" }));
+    const error = await response.json().catch(() => ({ message: "An error occurred" }));
     throw new Error(error.message || "Network response was not ok");
   }
 
@@ -86,6 +78,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       clearTimeout(timeoutId);
 
       if (data.isAuthenticated && data.user) {
+        console.log(data);
         setUser(data.user);
         setIsAuthenticated(true);
       } else {
@@ -126,6 +119,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     logout,
     refreshUser,
   };
+  console.log(value);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
