@@ -12,16 +12,22 @@ import { cn } from "@/lib/utils";
 import GithubRepoSelector from "@/components/GithubRepoSelector";
 import NewProjectForm from "@/components/NewProjectForm";
 import Setting from "@/components/Setting";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 interface Application {
+  _id: string;
   id: string;
   name: string;
-  repository: string;
-  url: string;
-  language: string;
-  lastDeploy: string;
-  description: string;
+  repo_name: string;
+  repo_url: string;
+  logo_url: string;
+  description?: string;
+  selected_branch: string;
+  languages_url: string;
+  commithistory_url: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 interface Repository {
@@ -39,92 +45,45 @@ interface Repository {
   commitHistory: string;
 }
 
-interface ProjectData {
-  name: string;
-  description: string;
-  branch: string;
-  logo?: File;
-  repositoryId: number;
-  repositoryFullName: string;
-}
-
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState<"apps" | "settings">("apps");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [isProjectDialogOpen, setIsProjectDialogOpen] = useState(false);
   const [selectedRepo, setSelectedRepo] = useState<Repository | null>(null);
+  const [applications, setApplications] = useState<Application[]>([]);
+  const [loadingApps, setLoadingApps] = useState(false);
+
+  const SERVER_URL = import.meta.env.VITE_SERVER_URL || "http://localhost:3000";
+  const navigate = useNavigate();
 
   const handleRepoSelect = (repo: Repository) => {
     setSelectedRepo(repo);
   };
 
-  const handleProjectSubmit = async (projectData: ProjectData) => {
+  const handleProjectSubmit = async () => {
+    setIsProjectDialogOpen(false);
+    setSelectedRepo(null);
+    fetchApplications();
+  };
+
+  const fetchApplications = async () => {
+    setLoadingApps(true);
     try {
-      // TODO: Implement the API call to create the project
-      console.log("Creating project with data:", projectData);
-      setIsProjectDialogOpen(false);
-      setSelectedRepo(null);
-    } catch (error) {
-      console.error("Error creating project:", error);
+      const res = await fetch(`${SERVER_URL}/project/getall`, { credentials: "include" });
+      const data = await res.json();
+      if (data.success && Array.isArray(data.projects)) {
+        setApplications(data.projects);
+      }
+    } catch (err) {
+      // Optionally handle error
+    } finally {
+      setLoadingApps(false);
     }
   };
 
-  const applications: Application[] = [
-    {
-      id: "app-1",
-      name: "ml-training-monitor",
-      repository: "github.com/user/ml-training",
-      url: "https://terminax.io/v/a1b2c3d4e5f6",
-      language: "Python",
-      lastDeploy: "2 hours ago",
-      description:
-        "Real-time machine learning training progress monitor with loss tracking and epoch visualization.",
-    },
-    {
-      id: "app-2",
-      name: "build-system",
-      repository: "github.com/user/cpp-project",
-      url: "https://terminax.io/v/g7h8i9j0k1l2",
-      language: "C++",
-      lastDeploy: "1 day ago",
-      description:
-        "Automated C++ build system with real-time compilation output and error reporting.",
-    },
-    {
-      id: "app-3",
-      name: "test-runner",
-      repository: "github.com/user/java-tests",
-      url: "https://terminax.io/v/m3n4o5p6q7r8",
-      language: "Java",
-      lastDeploy: "deploying...",
-      description:
-        "Continuous integration test runner with detailed test results and coverage reports.",
-    },
-    {
-      id: "app-4",
-      name: "log-analyzer",
-      repository: "github.com/user/log-tools",
-      url: "https://terminax.io/v/n4o5p6q7r8s9",
-      language: "JavaScript",
-      lastDeploy: "30 minutes ago",
-      description: "Real-time log analysis tool with pattern matching and alert notifications.",
-    },
-  ];
-
-  const getLanguageColor = () => {
-    const colors = [
-      "bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400",
-      "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400",
-      "bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-400",
-      "bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400",
-      "bg-cyan-100 text-cyan-800 dark:bg-cyan-900/20 dark:text-cyan-400",
-      "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400",
-      "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400",
-      "bg-pink-100 text-pink-800 dark:bg-pink-900/20 dark:text-pink-400",
-      "bg-indigo-100 text-indigo-800 dark:bg-indigo-900/20 dark:text-indigo-400",
-    ];
-    return colors[Math.floor(Math.random() * colors.length)];
-  };
+  useEffect(() => {
+    fetchApplications();
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-black">
@@ -236,48 +195,48 @@ export default function Dashboard() {
             {/* Grid View */}
             {viewMode === "grid" && (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {applications.map((app) => (
-                  <div
-                    key={app.id}
-                    className="bg-white dark:bg-[#0A0A0A] rounded-xl border border-gray-200 dark:border-gray-700 p-6 hover:shadow-lg transition-all duration-200 hover:border-purple-300 dark:hover:border-purple-600">
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 bg-purple-100 dark:bg-purple-900/20 rounded-lg flex items-center justify-center">
-                          <Terminal className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-                        </div>
-                        <div>
-                          <h3 className="font-semibold text-gray-900 dark:text-white">
-                            {app.name}
-                          </h3>
-                          <span
-                            className={cn(
-                              "inline-flex items-center px-2 py-1 rounded-full text-xs font-medium",
-                              getLanguageColor()
-                            )}>
-                            {app.language}
-                          </span>
+                {loadingApps ? (
+                  <div className="col-span-full text-center text-gray-400">Loading...</div>
+                ) : applications.length === 0 ? (
+                  <div className="col-span-full text-center text-gray-400">No applications found.</div>
+                ) : (
+                  applications.map((app) => (
+                    <div
+                      key={app._id}
+                      className="bg-white dark:bg-[#0A0A0A] rounded-xl border border-gray-200 dark:border-gray-700 p-6 hover:shadow-lg transition-all duration-200 hover:border-purple-300 dark:hover:border-purple-600 cursor-pointer"
+                      onClick={() => navigate(`/project/${app._id}`)}
+                    >
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="flex items-center space-x-3">
+                          <div className="w-10 h-10 bg-purple-100 dark:bg-purple-900/20 rounded-lg flex items-center justify-center overflow-hidden">
+                            {app.logo_url ? (
+                              <img src={app.logo_url} alt="Logo" className="w-8 h-8 object-cover rounded" />
+                            ) : (
+                              <Terminal className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                            )}
+                          </div>
+                          <div>
+                            <h3 className="font-semibold text-gray-900 dark:text-white">
+                              {app.name}
+                            </h3>
+                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-700 dark:bg-purple-900/20 dark:text-purple-400">
+                              {app.selected_branch}
+                            </span>
+                          </div>
                         </div>
                       </div>
-                      <div className="flex items-center space-x-1">
-                        <button className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
-                          <ExternalLink className="w-4 h-4" />
-                        </button>
-                        <button className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
-                          <Settings className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
 
-                    <p className="text-sm text-gray-600 dark:text-gray-300 mb-4 line-clamp-2">
-                      {app.description}
-                    </p>
-                    <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-                      <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                        {app.repository}
+                      <p className="text-sm text-gray-600 dark:text-gray-300 mb-4 line-clamp-2">
+                        {app.description}
+                      </p>
+                      <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                        <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                          {app.repo_name}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
             )}
 
@@ -285,49 +244,50 @@ export default function Dashboard() {
             {viewMode === "list" && (
               <div className="bg-white dark:bg-[#0A0A0A] rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
                 <div className="divide-y divide-gray-200 dark:divide-gray-700">
-                  {applications.map((app) => (
-                    <div
-                      key={app.id}
-                      className="p-6 hover:bg-gray-50 dark:hover:bg-[#171717]/50 transition-colors">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-4">
-                          <div className="w-10 h-10 bg-purple-100 dark:bg-purple-900/20 rounded-lg flex items-center justify-center">
-                            <Terminal className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-                          </div>
-                          <div>
-                            <div className="flex items-center space-x-3">
-                              <h3 className="font-semibold text-gray-900 dark:text-white">
-                                {app.name}
-                              </h3>
-                              <span
-                                className={cn(
-                                  "inline-flex items-center px-2 py-1 rounded-full text-xs font-medium",
-                                  getLanguageColor()
-                                )}>
-                                {app.language}
-                              </span>
+                  {loadingApps ? (
+                    <div className="p-6 text-center text-gray-400">Loading...</div>
+                  ) : applications.length === 0 ? (
+                    <div className="p-6 text-center text-gray-400">No applications found.</div>
+                  ) : (
+                    applications.map((app) => (
+                      <div
+                        key={app._id}
+                        className="p-6 hover:bg-gray-50 dark:hover:bg-[#171717]/50 transition-colors cursor-pointer"
+                        onClick={() => navigate(`/project/${app._id}`)}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-4">
+                            <div className="w-10 h-10 bg-purple-100 dark:bg-purple-900/20 rounded-lg flex items-center justify-center overflow-hidden">
+                              {app.logo_url ? (
+                                <img src={app.logo_url} alt="Logo" className="w-8 h-8 object-cover rounded" />
+                              ) : (
+                                <Terminal className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                              )}
                             </div>
-                            <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
-                              {app.description}
-                            </p>
-                            <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                              {app.repository}
+                            <div>
+                              <div className="flex items-center space-x-3">
+                                <h3 className="font-semibold text-gray-900 dark:text-white">
+                                  {app.name}
+                                </h3>
+                                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-700 dark:bg-purple-900/20 dark:text-purple-400">
+                                  {app.selected_branch}
+                                </span>
+                              </div>
+                              <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
+                                {app.description}
+                              </p>
+                              <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                {app.repo_name}
+                              </div>
                             </div>
                           </div>
-                        </div>
-                        <div className="flex items-center space-x-6">
-                          <div className="flex items-center space-x-2">
-                            <button className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg">
-                              <ExternalLink className="w-4 h-4" />
-                            </button>
-                            <button className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg">
-                              <Settings className="w-4 h-4" />
-                            </button>
+                          <div className="flex items-center space-x-6">
+                            
                           </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    ))
+                  )}
                 </div>
               </div>
             )}

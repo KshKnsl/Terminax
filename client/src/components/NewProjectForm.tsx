@@ -23,24 +23,11 @@ interface Repository {
 
 interface NewProjectFormProps {
   repository: Repository;
-  onSubmit: (projectData: ProjectData) => void;
+  onSubmit: () => void;
   onBack: () => void;
 }
 
-interface ProjectData {
-  name: string;
-  repoid: string;
-  logo_url: string;
-  repo_url: string;
-  repo_name: string;
-  branch_url: string;
-  description?: string;
-  languages_url: string;
-  selected_branch: string;
-  commithistory_url: string;
-}
-
-const NewProjectForm: React.FC<NewProjectFormProps> = ({ repository, onSubmit, onBack }) => {
+const NewProjectForm: React.FC<NewProjectFormProps> = ({ repository, onBack, onSubmit }) => {
   const [project, setProject] = useState({
     name: repository.name,
     description: repository.description || "",
@@ -62,6 +49,7 @@ const NewProjectForm: React.FC<NewProjectFormProps> = ({ repository, onSubmit, o
     const fetchBranches = async () => {
       setLoading(true);
       try {
+        console.log("Branches for repository:", repository.branches_url);
         const response = await fetch(
           `${SERVER_URL}/github/branches?branchUrl=${encodeURIComponent(repository.branches_url)}`,
           {
@@ -99,42 +87,48 @@ const NewProjectForm: React.FC<NewProjectFormProps> = ({ repository, onSubmit, o
     e.preventDefault();
     if (!project.name || loading) return;
 
-    // Only upload new logo if user selected a custom one
+    let logoUrl = project.logo_url;
     if (project.logo) {
       const formData = new FormData();
       formData.append("logo", project.logo);
-      try {
-        const uploadResponse = await fetch(`${SERVER_URL}/upload`, {
-          method: "POST",
-          credentials: "include",
-          body: formData,
-        });
-        if (uploadResponse.ok) {
-          const { url } = await uploadResponse.json();
-          project.logo_url = url;
-        }
-      } catch (error) {
-        console.error("Logo upload failed:", error);
-        project.logo_url = repository.avatar_url || "";
+      const uploadResponse = await fetch(`${SERVER_URL}/util/upload`, {
+        method: "POST",
+        credentials: "include",
+        body: formData,
+      });
+      if (uploadResponse.ok) {
+        const { url } = await uploadResponse.json();
+        logoUrl = url;
       }
     }
 
-    onSubmit({
-      name: project.name,
-      description: project.description,
-      selected_branch: project.selected_branch,
-      repoid: project.repoid,
-      repo_url: project.repo_url,
-      repo_name: project.repo_name,
-      branch_url: project.branch_url,
-      languages_url: project.languages_url,
-      commithistory_url: project.commithistory_url,
-      logo_url: project.logo_url,
+    await fetch(`${SERVER_URL}/project/create`, {
+      method: "POST",
+      credentials: "include",
+      body: JSON.stringify({
+        name: project.name,
+        repoid: project.repoid,
+        logo_url: logoUrl,
+        repo_url: project.repo_url,
+        repo_name: project.repo_name,
+        branch_url: project.branch_url,
+        description: project.description,
+        languages_url: project.languages_url,
+        selected_branch: project.selected_branch,
+        commithistory_url: project.commithistory_url,
+      }),
+      headers: {
+        "Content-Type": "application/json",
+      },
     });
+
+    if (onSubmit) {
+      onSubmit();
+    }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form className="space-y-6">
       <div className="space-y-4">
         {/* Logo Upload */}
         <div className="flex items-center gap-4">
@@ -167,7 +161,6 @@ const NewProjectForm: React.FC<NewProjectFormProps> = ({ repository, onSubmit, o
           </div>
         </div>
 
-        {/* Project Details */}
         <div className="grid gap-4">
           <div>
             <Label htmlFor="name">Name</Label>
@@ -232,7 +225,6 @@ const NewProjectForm: React.FC<NewProjectFormProps> = ({ repository, onSubmit, o
         </div>
       </div>
 
-      {/* Form Actions */}
       <div className="flex justify-end gap-4 pt-4 border-t border-gray-200 dark:border-gray-800">
         <Button type="button" variant="outline" onClick={onBack}>
           Back
@@ -240,7 +232,8 @@ const NewProjectForm: React.FC<NewProjectFormProps> = ({ repository, onSubmit, o
         <Button
           type="submit"
           className="bg-purple-600 hover:bg-purple-700 text-white"
-          disabled={loading || !project.name}>
+          disabled={loading || !project.name}
+          onClick={handleSubmit}>
           Create Project
         </Button>
       </div>

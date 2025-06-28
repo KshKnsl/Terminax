@@ -10,6 +10,7 @@ import authRoutes from "./routes/auth";
 import userRoutes from "./routes/user";
 import gitRoutes from "./routes/github";
 import projectRoutes from "./routes/project";
+import utilRoutes from "./routes/util";
 
 dotenv.config();
 mongoose
@@ -68,6 +69,7 @@ app.use("/user", userRoutes);
 app.use("/users", userRoutes);
 app.use("/github", gitRoutes);
 app.use("/project", projectRoutes);
+app.use("/util", utilRoutes);
 app.get("/", (req, res) => {
   res.status(200).json({ message: "Terminax API server" });
 });

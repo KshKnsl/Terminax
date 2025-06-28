@@ -23,6 +23,7 @@ import HomePage from "./pages/HomePage";
 import Dashboard from "./pages/Dashboard";
 import DeleteAccount from "@/components/DeleteAccount";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import Project from "./pages/Project";
 
 const App = () => {
   const { isAuthenticated, user, logout, isLoading } = useAuth();
@@ -180,6 +181,10 @@ const App = () => {
         <Route
           path="/dashboard"
           element={isAuthenticated ? <Dashboard /> : <Navigate to="/" replace />}
+        />
+        <Route
+          path="/project/:id"
+          element={isAuthenticated ? <Project /> : <Navigate to="/" replace />}
         />
       </Routes>
     </div>

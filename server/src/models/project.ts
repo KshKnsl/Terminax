@@ -11,8 +11,11 @@ export interface ProjectInterface extends Document {
   languages_url: string;
   selected_branch: string;
   commithistory_url: string;
+  lastDeploymentDate?: Date;
+  deploymentLink?: string;
   createdAt: Date;
   updatedAt: Date;
+  ownerId: string;
 }
 
 const ProjectSchema = new Schema({
@@ -23,6 +26,7 @@ const ProjectSchema = new Schema({
   repoid: {
     type: String,
     required: true,
+    unique: true,
   },
   logo_url: {
     type: String,
@@ -53,6 +57,18 @@ const ProjectSchema = new Schema({
     required: true,
   },
   commithistory_url: {
+    type: String,
+    required: true,
+  },
+  lastDeploymentDate: {
+    type: Date,
+    default: null,
+  },
+  deploymentLink: {
+    type: String,
+    default: null,
+  },
+  ownerId: {
     type: String,
     required: true,
   },

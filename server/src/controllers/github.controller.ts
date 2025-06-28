@@ -55,8 +55,9 @@ export class GitHubController {
       res.status(400).json({ error: "Missing branch URL parameter" });
       return;
     }
-    
-    const decodedUrl = decodeURIComponent(branchUrl);
+
+    // Remove any template placeholders like '{/branch}' from the URL
+    const decodedUrl = decodeURIComponent(branchUrl).replace(/\/branches(\{.*\})?$/, "/branches");
 
     console.log("Branch URL:", decodedUrl);
     const response = await axios.get(`${decodedUrl}`, {
@@ -73,10 +74,15 @@ export class GitHubController {
   } 
   static async getLanguages(req: Request, res: Response): Promise<void> {
     const user = req.user;
-    const { languages_url } = req.params;
+    const { languages_url } = req.query;
 
-    console.log("Languages URL:", languages_url);
-    const response = await axios.get(`${languages_url}`, {
+    if (!languages_url || typeof languages_url !== 'string') {
+      res.status(400).json({ error: "Missing or invalid languages_url parameter" });
+      return;
+    }
+
+    console.log("Languages URL:", decodeURIComponent(languages_url));
+    const response = await axios.get(`${decodeURIComponent(languages_url)}`, {
       headers: {
         Accept: "application/vnd.github.v3+json",
         Authorization: `Bearer ${user?.accessToken}`,
@@ -90,10 +96,15 @@ export class GitHubController {
   }
   static async getCommitsData(req: Request, res: Response): Promise<void> {
     const user = req.user;
-    const { commithistory_url } = req.params;
+    const { commithistory_url } = req.query;
 
-    console.log("Commit History URL:", commithistory_url);
-    const response = await axios.get(`${commithistory_url}`, {
+    if (!commithistory_url || typeof commithistory_url !== 'string') {
+      res.status(400).json({ error: "Missing or invalid commithistory_url parameter" });
+      return;
+    }
+
+    console.log("Commit History URL:", decodeURIComponent(commithistory_url));
+    const response = await axios.get(`${decodeURIComponent(commithistory_url)}`, {
       headers: {
         Accept: "application/vnd.github.v3+json",
         Authorization: `Bearer ${user?.accessToken}`,

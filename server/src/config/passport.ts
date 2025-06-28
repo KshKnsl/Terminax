@@ -9,12 +9,10 @@ declare global {
 }
 
 export default function configurePassport(): void {
-  // Store only user ID in session
   passport.serializeUser((user: UserInterface, done) => {
     done(null, user.id);
   });
 
-  // Retrieve user from database using session ID
   passport.deserializeUser(async (id: string, done) => {
     const user = await User.findById(id);
 
