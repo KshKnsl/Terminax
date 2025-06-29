@@ -10,6 +10,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { ChartPieDonutText } from "@/components/ui/donut-pie-chart";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import ProjectSettingsForm from "@/components/ProjectSettingsForm";
 
 interface ProjectData {
   _id: string;
@@ -164,185 +166,222 @@ const Project = () => {
       <Button variant="outline" className="mb-6" onClick={() => navigate(-1)}>
         <ArrowLeft className="w-4 h-4 mr-2" /> Back
       </Button>
-      {/* Project Header */}
-      <div className="flex items-center gap-6 mb-8">
-        <div className="w-20 h-20 rounded-lg bg-purple-100 dark:bg-purple-900/20 flex items-center justify-center overflow-hidden">
-          {project.logo_url ? (
-            <img src={project.logo_url} alt="Logo" className="w-full h-full object-cover" />
-          ) : (
-            <span className="text-3xl font-bold text-purple-500">{project.name[0]}</span>
-          )}
-        </div>
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-1">{project.name}</h1>
-          <div className="text-xs text-gray-500 dark:text-gray-400">
-            Project ID: <span className="font-mono">{project._id}</span>
-          </div>
-          <div className="text-xs text-gray-500 dark:text-gray-400">
-            Repo ID: <span className="font-mono">{project.repoid}</span>
-          </div>
-          <a
-            href={project.repo_url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-purple-600 hover:underline text-sm">
-            {project.repo_name}
-          </a>
-          <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-            Branch: <span className="font-medium text-purple-500">{project.selected_branch}</span>
-          </div>
-        </div>
-      </div>
-      {/* Description */}
-      <div className="mb-8">
-        <h2 className="text-lg font-semibold mb-2">Description</h2>
-        <p className="text-gray-700 dark:text-gray-200 whitespace-pre-line">
-          {project.description || "No description provided."}
-        </p>
-      </div>
-      {/* Key Info and Analytics Section */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        {/* Left column: Dates, Commits, Deployment, Branches */}
-        <div className="flex flex-col gap-6">
-          <div>
-            <h3 className="font-semibold mb-1 text-gray-800 dark:text-gray-200">Created At</h3>
-            <span className="text-xs text-gray-500">
-              {new Date(project.createdAt).toLocaleString()}
-            </span>
-          </div>
-          <div>
-            <h3 className="font-semibold mb-1 text-gray-800 dark:text-gray-200">Updated At</h3>
-            <span className="text-xs text-gray-500">
-              {new Date(project.updatedAt).toLocaleString()}
-            </span>
-          </div>
-          <div>
-            <h3 className="text-lg font-semibold mb-2">Commits</h3>
-            <div className="flex flex-col gap-2">
-              <div className="flex items-center gap-2">
-                <Dialog open={commitsOpen} onOpenChange={setCommitsOpen}>
-                  <DialogTrigger asChild>
-                    <Button size="icon" variant="ghost" onClick={fetchCommits} title="Show Commits">
-                      <GitCommit className="w-4 h-4 text-purple-500" />
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-lg">
-                    <DialogHeader>
-                      <DialogTitle>Commits Data</DialogTitle>
-                    </DialogHeader>
-                    {commitsLoading ? (
-                      <div className="text-center text-gray-400">Loading...</div>
-                    ) : commitsError ? (
-                      <div className="text-center text-red-500">{commitsError}</div>
-                    ) : (
-                      <pre className="whitespace-pre-wrap break-all text-xs max-h-96 overflow-auto">
-                        {JSON.stringify(commitsData, null, 2)}
-                      </pre>
-                    )}
-                  </DialogContent>
-                </Dialog>
-                {/* Commit stats */}
-              </div>
-              {commitsData && Array.isArray(commitsData) && commitsData.length > 0 && (
-                <div className="text-xs text-gray-700 dark:text-gray-300 space-y-1 mt-2">
-                  <div>
-                    Total commits: <span className="font-semibold">{commitsData.length}</span>
-                  </div>
-                  <div>
-                    Unique authors:{" "}
-                    <span className="font-semibold">
-                      {
-                        Array.from(
-                          new Set(
-                            commitsData.map(
-                              (c: any) => c.commit?.author?.name || c.author?.login || "Unknown"
-                            )
-                          )
-                        ).length
-                      }
-                    </span>
-                  </div>
-                  <div>
-                    Latest commit:{" "}
-                    <span className="font-semibold">
-                      {new Date(
-                        commitsData[0].commit?.author?.date ||
-                          commitsData[0].commit?.committer?.date
-                      ).toLocaleString()}
-                    </span>
-                  </div>
-                </div>
+      <Tabs defaultValue="overview" className="w-full">
+        <TabsList className="mb-6 bg-muted text-muted-foreground inline-flex h-9 w-fit items-center justify-center rounded-lg p-[3px]">
+          <TabsTrigger
+            value="overview"
+            className="data-[state=active]:bg-purple-100 data-[state=active]:text-purple-700 dark:data-[state=active]:bg-purple-900/40 dark:data-[state=active]:text-purple-200 focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:outline-ring dark:data-[state=active]:border-input inline-flex h-[calc(100%-1px)] flex-1 items-center justify-center gap-1.5 rounded-md border border-transparent px-4 py-2 text-base font-semibold whitespace-nowrap transition-[color,box-shadow] focus-visible:ring-[3px] focus-visible:outline-1 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:shadow-sm">
+            Overview
+          </TabsTrigger>
+          <TabsTrigger
+            value="settings"
+            className="data-[state=active]:bg-purple-100 data-[state=active]:text-purple-700 dark:data-[state=active]:bg-purple-900/40 dark:data-[state=active]:text-purple-200 focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:outline-ring dark:data-[state=active]:border-input inline-flex h-[calc(100%-1px)] flex-1 items-center justify-center gap-1.5 rounded-md border border-transparent px-4 py-2 text-base font-semibold whitespace-nowrap transition-[color,box-shadow] focus-visible:ring-[3px] focus-visible:outline-1 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:shadow-sm">
+            Settings
+          </TabsTrigger>
+        </TabsList>
+        <TabsContent value="overview" className="text-lg">
+          {/* Project Header */}
+          <div className="flex items-center gap-6 mb-8">
+            <div className="w-20 h-20 rounded-lg bg-purple-100 dark:bg-purple-900/20 flex items-center justify-center overflow-hidden">
+              {project.logo_url ? (
+                <img src={project.logo_url} alt="Logo" className="w-full h-full object-cover" />
+              ) : (
+                <span className="text-3xl font-bold text-purple-500">{project.name[0]}</span>
               )}
             </div>
-          </div>
-          {/* Deployment Link Section */}
-          <div>
-            <h3 className="font-semibold mb-1 text-gray-800 dark:text-gray-200">Deployment Link</h3>
-            {project.deploymentLink ? (
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-1">
+                {project.name}
+              </h1>
+              <div className="text-xs text-gray-500 dark:text-gray-400">
+                Project ID: <span className="font-mono">{project._id}</span>
+              </div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">
+                Repo ID: <span className="font-mono">{project.repoid}</span>
+              </div>
               <a
-                href={project.deploymentLink}
+                href={project.repo_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-green-600 hover:underline break-all text-xs">
-                {project.deploymentLink}
+                className="text-purple-600 hover:underline text-sm">
+                {project.repo_name}
               </a>
-            ) : (
-              <span className="text-xs text-gray-400">No deployment link</span>
-            )}
-          </div>
-          {/* Branches Section */}
-          <div>
-            <h3 className="font-semibold mb-1 text-gray-800 dark:text-gray-200">Branches</h3>
-            {branchesLoading ? (
-              <div className="text-xs text-gray-400">Loading branches...</div>
-            ) : branchesError ? (
-              <div className="text-xs text-red-500">{branchesError}</div>
-            ) : branches.length > 0 ? (
-              <div className="flex flex-wrap gap-2 mb-2">
-                {branches.map((branch) => (
-                  <span
-                    key={branch}
-                    className={
-                      branch === project.selected_branch
-                        ? "px-2 py-1 rounded bg-purple-600 text-white text-xs font-semibold shadow"
-                        : "px-2 py-1 rounded bg-gray-200 dark:bg-[#0A0A0A] text-xs text-gray-700 dark:text-gray-300"
-                    }>
-                    {branch}
-                  </span>
-                ))}
+              <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                Branch:{" "}
+                <span className="font-medium text-purple-500">{project.selected_branch}</span>
               </div>
-            ) : (
-              <div className="text-xs text-gray-400">No branches found.</div>
-            )}
+            </div>
           </div>
-        </div>
-        {/* Right column: Languages chart spanning all rows */}
-        <div className="flex flex-col justify-between h-full">
-          <div className="w-full max-w-md mx-auto">
-            <h2 className="text-lg font-semibold mb-2">Languages</h2>
-            {languagesLoading ? (
-              <div className="text-xs text-gray-400">Loading languages...</div>
-            ) : languagesError ? (
-              <div className="text-xs text-red-500">{languagesError}</div>
-            ) : languagesData &&
-              typeof languagesData === "object" &&
-              Object.keys(languagesData).length > 0 ? (
-              <ChartPieDonutText
-                chartData={Object.entries(languagesData).map(([lang, value]) => ({
-                  browser: lang,
-                  visitors: Number(value),
-                  fill: undefined,
-                }))}
-                title="Languages"
-                description="Project language breakdown"
-                valueLabel="Bytes"
-              />
-            ) : (
-              <div className="text-xs text-gray-400">No language data found.</div>
-            )}
+          {/* Description */}
+          <div className="mb-8">
+            <h2 className="text-lg font-semibold mb-2">Description</h2>
+            <p className="text-gray-700 dark:text-gray-200 whitespace-pre-line">
+              {project.description || "No description provided."}
+            </p>
           </div>
-        </div>
-      </div>
+          {/* Key Info and Analytics Section */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            {/* Left column: Dates, Commits, Deployment, Branches */}
+            <div className="flex flex-col gap-6">
+              <div>
+                <h3 className="font-semibold mb-1 text-gray-800 dark:text-gray-200">Created At</h3>
+                <span className="text-xs text-gray-500">
+                  {new Date(project.createdAt).toLocaleString()}
+                </span>
+              </div>
+              <div>
+                <h3 className="font-semibold mb-1 text-gray-800 dark:text-gray-200">Updated At</h3>
+                <span className="text-xs text-gray-500">
+                  {new Date(project.updatedAt).toLocaleString()}
+                </span>
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold mb-2">Commits</h3>
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-center gap-2">
+                    <Dialog open={commitsOpen} onOpenChange={setCommitsOpen}>
+                      <DialogTrigger asChild>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          onClick={fetchCommits}
+                          title="Show Commits">
+                          <GitCommit className="w-4 h-4 text-purple-500" />
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-lg">
+                        <DialogHeader>
+                          <DialogTitle>Commits Data</DialogTitle>
+                        </DialogHeader>
+                        {commitsLoading ? (
+                          <div className="text-center text-gray-400">Loading...</div>
+                        ) : commitsError ? (
+                          <div className="text-center text-red-500">{commitsError}</div>
+                        ) : (
+                          <pre className="whitespace-pre-wrap break-all text-xs max-h-96 overflow-auto">
+                            {JSON.stringify(commitsData, null, 2)}
+                          </pre>
+                        )}
+                      </DialogContent>
+                    </Dialog>
+                    {/* Commit stats */}
+                  </div>
+                  {commitsData && Array.isArray(commitsData) && commitsData.length > 0 && (
+                    <div className="text-xs text-gray-700 dark:text-gray-300 space-y-1 mt-2">
+                      <div>
+                        Total commits: <span className="font-semibold">{commitsData.length}</span>
+                      </div>
+                      <div>
+                        Unique authors:{" "}
+                        <span className="font-semibold">
+                          {
+                            Array.from(
+                              new Set(
+                                commitsData.map(
+                                  (c: any) => c.commit?.author?.name || c.author?.login || "Unknown"
+                                )
+                              )
+                            ).length
+                          }
+                        </span>
+                      </div>
+                      <div>
+                        Latest commit:{" "}
+                        <span className="font-semibold">
+                          {new Date(
+                            commitsData[0].commit?.author?.date ||
+                              commitsData[0].commit?.committer?.date
+                          ).toLocaleString()}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+              {/* Deployment Link Section */}
+              <div>
+                <h3 className="font-semibold mb-1 text-gray-800 dark:text-gray-200">
+                  Deployment Link
+                </h3>
+                {project.deploymentLink ? (
+                  (() => {
+                    const isHttp = project.deploymentLink.startsWith("http");
+                    const baseUrl = window.location.origin;
+                    const link = isHttp
+                      ? project.deploymentLink
+                      : `${baseUrl}${project.deploymentLink.startsWith("/") ? "" : "/"}${project.deploymentLink}`;
+                    return (
+                      <a
+                        href={link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-green-600 hover:underline break-all text-xs">
+                        {link}
+                      </a>
+                    );
+                  })()
+                ) : (
+                  <span className="text-xs text-gray-400">No deployment link</span>
+                )}
+              </div>
+              {/* Branches Section */}
+              <div>
+                <h3 className="font-semibold mb-1 text-gray-800 dark:text-gray-200">Branches</h3>
+                {branchesLoading ? (
+                  <div className="text-xs text-gray-400">Loading branches...</div>
+                ) : branchesError ? (
+                  <div className="text-xs text-red-500">{branchesError}</div>
+                ) : branches.length > 0 ? (
+                  <div className="flex flex-wrap gap-2 mb-2">
+                    {branches.map((branch) => (
+                      <span
+                        key={branch}
+                        className={
+                          branch === project.selected_branch
+                            ? "px-2 py-1 rounded bg-purple-600 text-white text-xs font-semibold shadow"
+                            : "px-2 py-1 rounded bg-gray-200 dark:bg-[#0A0A0A] text-xs text-gray-700 dark:text-gray-300"
+                        }>
+                        {branch}
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-xs text-gray-400">No branches found.</div>
+                )}
+              </div>
+            </div>
+            {/* Right column: Languages chart spanning all rows */}
+            <div className="flex flex-col justify-between h-full">
+              <div className="w-full max-w-md mx-auto">
+                <h2 className="text-lg font-semibold mb-2">Languages</h2>
+                {languagesLoading ? (
+                  <div className="text-xs text-gray-400">Loading languages...</div>
+                ) : languagesError ? (
+                  <div className="text-xs text-red-500">{languagesError}</div>
+                ) : languagesData &&
+                  typeof languagesData === "object" &&
+                  Object.keys(languagesData).length > 0 ? (
+                  <ChartPieDonutText
+                    chartData={Object.entries(languagesData).map(([lang, value]) => ({
+                      browser: lang,
+                      visitors: Number(value),
+                      fill: undefined,
+                    }))}
+                    title="Languages"
+                    description="Project language breakdown"
+                    valueLabel="Bytes"
+                  />
+                ) : (
+                  <div className="text-xs text-gray-400">No language data found.</div>
+                )}
+              </div>
+            </div>
+          </div>
+        </TabsContent>
+        <TabsContent value="settings" className="text-lg">
+          <ProjectSettingsForm project={project} onProjectUpdate={setProject} />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

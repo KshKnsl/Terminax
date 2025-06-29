@@ -5,4 +5,6 @@ router.post("/create", ProjectController.createProject);
 router.get("/getall", ProjectController.getAllProjects);
 router.get("/get/:id", ProjectController.getProjectById);
 router.put("/update/:id", ProjectController.updateProject);
+router.post("/updateBranch", ProjectController.updateBranch);
+router.post("/updateDetails", ProjectController.updateDetails);
 export default router;

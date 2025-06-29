@@ -24,6 +24,7 @@ import Dashboard from "./pages/Dashboard";
 import DeleteAccount from "@/components/DeleteAccount";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import Project from "./pages/Project";
+import DeploymentPage from "./pages/DeploymentPage";
 
 const App = () => {
   const { isAuthenticated, user, logout, isLoading } = useAuth();
@@ -185,6 +186,10 @@ const App = () => {
         <Route
           path="/project/:id"
           element={isAuthenticated ? <Project /> : <Navigate to="/" replace />}
+        />
+        <Route
+          path="/:deploymentId"
+          element={<DeploymentPage /> }
         />
       </Routes>
     </div>

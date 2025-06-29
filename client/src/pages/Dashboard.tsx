@@ -5,15 +5,15 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Plus, Terminal, Settings, Grid3X3, List, ExternalLink } from "lucide-react";
+import { Plus, Terminal, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DotPattern } from "@/components/ui/dot-pattern";
-import { cn } from "@/lib/utils";
 import GithubRepoSelector from "@/components/GithubRepoSelector";
 import NewProjectForm from "@/components/NewProjectForm";
 import Setting from "@/components/Setting";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 interface Application {
   _id: string;
@@ -47,7 +47,6 @@ interface Repository {
 
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState<"apps" | "settings">("apps");
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [isProjectDialogOpen, setIsProjectDialogOpen] = useState(false);
   const [selectedRepo, setSelectedRepo] = useState<Repository | null>(null);
   const [applications, setApplications] = useState<Application[]>([]);
@@ -98,11 +97,11 @@ export default function Dashboard() {
             className="absolute inset-0 w-full h-full opacity-30"
           />
         </div>
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-purple-500">Dashboard</h1>
-              <p className="text-gray-600 dark:text-gray-300 mt-1">
+        <div className="relative z-10 max-w-7xl mx-auto px-8 sm:px-12 lg:px-8 py-12 sm:py-8">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-0">
+            <div className="flex-1 min-w-0">
+              <h1 className="text-2xl sm:text-3xl font-bold text-purple-500">Dashboard</h1>
+              <p className="text-gray-600 dark:text-gray-300 mt-1 text-sm sm:text-base">
                 Manage your terminal applications and monitor active sessions
               </p>
             </div>
@@ -110,7 +109,7 @@ export default function Dashboard() {
               <DialogTrigger asChild>
                 <Button
                   size="lg"
-                  className="bg-purple-600 hover:bg-purple-700 text-white shadow-lg">
+                  className="w-full sm:w-auto bg-purple-600 hover:bg-purple-700 text-white shadow-lg">
                   <Plus className="w-4 h-4 mr-2" />
                   Deploy New App
                 </Button>
@@ -137,80 +136,48 @@ export default function Dashboard() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Navigation Tabs */}
-        <div className="flex space-x-1 mb-8">
-          {[
-            { id: "apps", label: "Applications", icon: Terminal },
-            { id: "settings", label: "Settings", icon: Settings },
-          ].map((tab) => {
-            const IconComponent = tab.icon;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id as any)}
-                className={cn(
-                  "flex items-center px-4 py-2 rounded-lg font-medium transition-all",
-                  activeTab === tab.id
-                    ? "bg-purple-100 text-purple-700 dark:bg-purple-900/20 dark:text-purple-400"
-                    : "text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#0A0A0A]"
-                )}>
-                <IconComponent className="w-4 h-4 mr-2" />
-                {tab.label}
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Applications Tab */}
-        {activeTab === "apps" && (
-          <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Applications</h2>
-              <div className="flex items-center space-x-2">
-                <div className="flex items-center bg-white dark:bg-[#0A0A0A] rounded-lg border border-gray-200 dark:border-gray-700 p-1">
-                  <button
-                    onClick={() => setViewMode("grid")}
-                    className={cn(
-                      "p-2 rounded-md transition-all",
-                      viewMode === "grid"
-                        ? "bg-purple-100 text-purple-600 dark:bg-purple-900/20 dark:text-purple-400"
-                        : "text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-                    )}>
-                    <Grid3X3 className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={() => setViewMode("list")}
-                    className={cn(
-                      "p-2 rounded-md transition-all",
-                      viewMode === "list"
-                        ? "bg-purple-100 text-purple-600 dark:bg-purple-900/20 dark:text-purple-400"
-                        : "text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-                    )}>
-                    <List className="w-4 h-4" />
-                  </button>
-                </div>
+        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="w-full">
+          <TabsList className="mb-8 bg-muted text-muted-foreground inline-flex h-9 w-fit items-center justify-center rounded-lg p-[3px]">
+            <TabsTrigger
+              value="apps"
+              className="data-[state=active]:bg-purple-100 data-[state=active]:text-purple-700 dark:data-[state=active]:bg-purple-900/20 dark:data-[state=active]:text-purple-400 focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:outline-ring dark:data-[state=active]:border-input inline-flex h-[calc(100%-1px)] flex-1 items-center justify-center gap-1.5 rounded-md border border-transparent px-4 py-2 text-base font-semibold whitespace-nowrap transition-[color,box-shadow] focus-visible:ring-[3px] focus-visible:outline-1 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:shadow-sm">
+              <Terminal className="w-4 h-4 mr-2" /> Applications
+            </TabsTrigger>
+            <TabsTrigger
+              value="settings"
+              className="data-[state=active]:bg-purple-100 data-[state=active]:text-purple-700 dark:data-[state=active]:bg-purple-900/20 dark:data-[state=active]:text-purple-400 focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:outline-ring dark:data-[state=active]:border-input inline-flex h-[calc(100%-1px)] flex-1 items-center justify-center gap-1.5 rounded-md border border-transparent px-4 py-2 text-base font-semibold whitespace-nowrap transition-[color,box-shadow] focus-visible:ring-[3px] focus-visible:outline-1 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:shadow-sm">
+              <Settings className="w-4 h-4 mr-2" /> Settings
+            </TabsTrigger>
+          </TabsList>
+          <TabsContent value="apps" className="text-lg">
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                  Applications
+                </h2>
               </div>
-            </div>
-
-            {/* Grid View */}
-            {viewMode === "grid" && (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {loadingApps ? (
                   <div className="col-span-full text-center text-gray-400">Loading...</div>
                 ) : applications.length === 0 ? (
-                  <div className="col-span-full text-center text-gray-400">No applications found.</div>
+                  <div className="col-span-full text-center text-gray-400">
+                    No applications found.
+                  </div>
                 ) : (
                   applications.map((app) => (
                     <div
                       key={app._id}
                       className="bg-white dark:bg-[#0A0A0A] rounded-xl border border-gray-200 dark:border-gray-700 p-6 hover:shadow-lg transition-all duration-200 hover:border-purple-300 dark:hover:border-purple-600 cursor-pointer"
-                      onClick={() => navigate(`/project/${app._id}`)}
-                    >
+                      onClick={() => navigate(`/project/${app._id}`)}>
                       <div className="flex items-start justify-between mb-4">
                         <div className="flex items-center space-x-3">
                           <div className="w-10 h-10 bg-purple-100 dark:bg-purple-900/20 rounded-lg flex items-center justify-center overflow-hidden">
                             {app.logo_url ? (
-                              <img src={app.logo_url} alt="Logo" className="w-8 h-8 object-cover rounded" />
+                              <img
+                                src={app.logo_url}
+                                alt="Logo"
+                                className="w-8 h-8 object-cover rounded"
+                              />
                             ) : (
                               <Terminal className="w-5 h-5 text-purple-600 dark:text-purple-400" />
                             )}
@@ -238,64 +205,12 @@ export default function Dashboard() {
                   ))
                 )}
               </div>
-            )}
-
-            {/* List View */}
-            {viewMode === "list" && (
-              <div className="bg-white dark:bg-[#0A0A0A] rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
-                <div className="divide-y divide-gray-200 dark:divide-gray-700">
-                  {loadingApps ? (
-                    <div className="p-6 text-center text-gray-400">Loading...</div>
-                  ) : applications.length === 0 ? (
-                    <div className="p-6 text-center text-gray-400">No applications found.</div>
-                  ) : (
-                    applications.map((app) => (
-                      <div
-                        key={app._id}
-                        className="p-6 hover:bg-gray-50 dark:hover:bg-[#171717]/50 transition-colors cursor-pointer"
-                        onClick={() => navigate(`/project/${app._id}`)}
-                      >
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-4">
-                            <div className="w-10 h-10 bg-purple-100 dark:bg-purple-900/20 rounded-lg flex items-center justify-center overflow-hidden">
-                              {app.logo_url ? (
-                                <img src={app.logo_url} alt="Logo" className="w-8 h-8 object-cover rounded" />
-                              ) : (
-                                <Terminal className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-                              )}
-                            </div>
-                            <div>
-                              <div className="flex items-center space-x-3">
-                                <h3 className="font-semibold text-gray-900 dark:text-white">
-                                  {app.name}
-                                </h3>
-                                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-700 dark:bg-purple-900/20 dark:text-purple-400">
-                                  {app.selected_branch}
-                                </span>
-                              </div>
-                              <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
-                                {app.description}
-                              </p>
-                              <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                {app.repo_name}
-                              </div>
-                            </div>
-                          </div>
-                          <div className="flex items-center space-x-6">
-                            
-                          </div>
-                        </div>
-                      </div>
-                    ))
-                  )}
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Settings Tab */}
-        {activeTab === "settings" && <Setting />}
+            </div>
+          </TabsContent>
+          <TabsContent value="settings" className="text-lg">
+            <Setting />
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );

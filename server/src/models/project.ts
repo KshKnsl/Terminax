@@ -18,61 +18,64 @@ export interface ProjectInterface extends Document {
   ownerId: string;
 }
 
-const ProjectSchema = new Schema({
-  name: {
-    type: String,
-    required: true,
+const ProjectSchema = new Schema(
+  {
+    name: {
+      type: String,
+      required: true,
+    },
+    repoid: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    logo_url: {
+      type: String,
+      required: true,
+    },
+    repo_url: {
+      type: String,
+      required: true,
+    },
+    repo_name: {
+      type: String,
+      required: true,
+    },
+    branch_url: {
+      type: String,
+      required: true,
+    },
+    description: {
+      type: String,
+      required: true,
+    },
+    languages_url: {
+      type: String,
+      required: true,
+    },
+    selected_branch: {
+      type: String,
+      required: true,
+    },
+    commithistory_url: {
+      type: String,
+      required: true,
+    },
+    lastDeploymentDate: {
+      type: Date,
+      default: null,
+    },
+    deploymentLink: {
+      type: String,
+      required: true,
+      unique: true,
+      index: true,
+    },
+    ownerId: {
+      type: String,
+      required: true,
+    },
   },
-  repoid: {
-    type: String,
-    required: true,
-    unique: true,
-  },
-  logo_url: {
-    type: String,
-    required: true,
-  },
-  repo_url: {
-    type: String,
-    required: true,
-  },
-  repo_name: {
-    type: String,
-    required: true,
-  },
-  branch_url: {
-    type: String,
-    required: true,
-  },
-  description: {
-    type: String,
-    required: true,
-  },
-  languages_url: {
-    type: String,
-    required: true,
-  },
-  selected_branch: {
-    type: String,
-    required: true,
-  },
-  commithistory_url: {
-    type: String,
-    required: true,
-  },
-  lastDeploymentDate: {
-    type: Date,
-    default: null,
-  },
-  deploymentLink: {
-    type: String,
-    default: null,
-  },
-  ownerId: {
-    type: String,
-    required: true,
-  },
-},
   { timestamps: true }
 );
 
