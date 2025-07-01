@@ -22,7 +22,7 @@ export default function HomePage() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [currentPrompt] = useState("user@terminax:~$");
 
-  const heroText = "git push terminax main # Auto-deploy GUI & CLI apps";
+  const heroText = "git push terminax main # Instantly run, code, and collaborate online";
 
   useEffect(() => {
     if (currentIndex < heroText.length) {
@@ -93,15 +93,12 @@ export default function HomePage() {
             </div>
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight">
               <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-pink-600 dark:from-purple-400 dark:to-pink-400">
-                Instant Deployment
+                Instant Online Coding
               </span>{" "}
-              <span className="text-gray-900 dark:text-white">for GUI & CLI Apps</span>
+              <span className="text-gray-900 dark:text-white">for CLI Projects</span>
             </h1>
             <p className="max-w-2xl mx-auto mt-6 text-lg text-gray-600 dark:text-gray-300 leading-relaxed">
-              <span className="font-semibold text-gray-900 dark:text-white">Terminax</span> is an
-              intelligent deployment platform that automatically builds and runs your GitHub
-              projects. From C++ to Python, CLI to GUI - we bring your code to life in the browser,{" "}
-              <span className="text-purple-600 dark:text-purple-400">securely and instantly</span>.
+              <span className="font-semibold text-gray-900 dark:text-white">Terminax</span> is a collaborative online coding platform. Instantly run code, share live terminals, and collaborate in real time—no setup required. Supports C++, Java, Python, and more.
             </p>
             <div className="relative bg-gray-100/80 dark:bg-[#0A0A0A]/90 backdrop-blur-sm border border-gray-200 dark:border-gray-700 rounded-lg p-4 max-w-2xl mx-auto mt-8 shadow-lg group">
               <div className="absolute -top-3 left-4 px-2 py-1 bg-purple-600 dark:bg-purple-500 text-white text-xs rounded-full font-mono">
@@ -118,7 +115,7 @@ export default function HomePage() {
               </div>
               <div className="text-purple-600 dark:text-purple-400 mt-2 flex items-center font-mono text-sm">
                 <span className="group-hover:underline transition-all">
-                  serving at https://terminax.io/v/{"{url}"}
+                  run, code, and collaborate instantly
                 </span>
                 <img
                   src={terminaxLogo}
@@ -152,7 +149,7 @@ export default function HomePage() {
         <div id="features" className="space-y-8 py-4">
           <h2 className="text-3xl font-bold text-center">
             <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-pink-600 dark:from-purple-400 dark:to-pink-400">
-              Intelligent Deployment Platform
+              Core Features
             </span>
           </h2>
           <div className="grid md:grid-cols-3 gap-6">
@@ -161,11 +158,10 @@ export default function HomePage() {
                 <Code className="w-8 h-8" />
               </div>
               <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
-                Smart Detection
+                Instant Code Execution
               </h3>
               <p className="text-gray-600 dark:text-gray-300">
-                Automatically detects languages, build systems, and app types. Supports C++, Java,
-                Python, Rust, Go and more.
+                Run code in seconds. No setup, no config—just code and execute in the browser.
               </p>
             </div>
             <div className="bg-white dark:bg-[#0A0A0A] p-6 rounded-lg border border-gray-200 dark:border-gray-700">
@@ -173,11 +169,10 @@ export default function HomePage() {
                 <Lightning className="w-8 h-8" />
               </div>
               <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
-                Auto Build & Deploy
+                Collaborative Coding
               </h3>
               <p className="text-gray-600 dark:text-gray-300">
-                Builds your code in secure containers and deploys both GUI and CLI applications
-                instantly.
+                Share your workspace and code together in real time. Great for teams, interviews, and learning.
               </p>
             </div>
             <div className="bg-white dark:bg-[#0A0A0A] p-6 rounded-lg border border-gray-200 dark:border-gray-700">
@@ -185,37 +180,10 @@ export default function HomePage() {
                 <Cpu className="w-8 h-8" />
               </div>
               <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
-                Live Interaction
+                Live Terminal
               </h3>
               <p className="text-gray-600 dark:text-gray-300">
-                Access GUI apps via browser, interact with CLI tools in real-time, and embed
-                terminals in your sites.
-              </p>
-            </div>
-          </div>
-          <div className="mt-6 grid md:grid-cols-2 gap-6">
-            <div className="bg-white dark:bg-[#0A0A0A] p-6 rounded-lg border border-gray-200 dark:border-gray-700">
-              <div className="text-purple-600 dark:text-purple-400 mb-3">
-                <Hash className="w-8 h-8" />
-              </div>
-              <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
-                Terminal Streaming
-              </h3>
-              <p className="text-gray-600 dark:text-gray-300">
-                Stream terminal output in real-time. Perfect for logs, build processes, and live
-                demos.
-              </p>
-            </div>
-            <div className="bg-white dark:bg-[#0A0A0A] p-6 rounded-lg border border-gray-200 dark:border-gray-700">
-              <div className="text-purple-600 dark:text-purple-400 mb-3">
-                <Copy className="w-8 h-8" />
-              </div>
-              <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
-                Embed Anywhere
-              </h3>
-              <p className="text-gray-600 dark:text-gray-300">
-                Embed live terminals and GUIs in your website with a simple iframe. Great for
-                tutorials and documentation.
+                Access a real terminal in your browser. Run, debug, and see output live.
               </p>
             </div>
           </div>
@@ -232,21 +200,21 @@ export default function HomePage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
             <div className="group bg-white dark:bg-[#0A0A0A] p-4 sm:p-6 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm dark:shadow-md dark:shadow-purple-900/10 hover:border-purple-400 dark:hover:border-purple-400 transition-all duration-300">
               <h3 className="text-purple-600 dark:text-purple-400 font-bold text-base sm:text-lg mb-3 flex items-center">
-                <span className="flex-1">Embed a Live Terminal in Your Site</span>
+                <span className="flex-1">Collaborative Coding Session</span>
                 <span className="text-xs font-normal px-2 py-1 bg-purple-100 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 rounded-full">
-                  iframe
+                  real-time
                 </span>
               </h3>
               <div className="bg-gray-100 dark:bg-black p-3 sm:p-4 rounded-md border border-gray-200 dark:border-gray-700 overflow-x-auto">
                 <pre className="text-sm sm:text-base">
                   <code className="font-mono whitespace-pre-wrap break-all sm:break-normal">
-                    &lt;iframe src="https://terminax.io/embed/{"{url}"}" width="100%"
-                    height="400"&gt; &lt;/iframe&gt;
+                    // Invite a friend to code together
+                    // Share your workspace link
                   </code>
                 </pre>
                 <pre className="mt-2 text-sm">
                   <code className="text-purple-600 dark:text-purple-400 font-mono">
-                    # Embeds a live, interactive terminal or GUI
+                    # Both users see changes live
                   </code>
                 </pre>
               </div>
@@ -254,23 +222,18 @@ export default function HomePage() {
 
             <div className="group bg-white dark:bg-[#0A0A0A] p-4 sm:p-6 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm dark:shadow-md dark:shadow-purple-900/10 hover:border-purple-400 dark:hover:border-purple-400 transition-all duration-300">
               <h3 className="text-purple-600 dark:text-purple-400 font-bold text-base sm:text-lg mb-3 flex items-center">
-                <span className="flex-1">Pipe Terminal Output in Real-time</span>
+                <span className="flex-1">Run Code Instantly</span>
                 <span className="text-xs font-normal px-2 py-1 bg-purple-100 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 rounded-full">
-                  stream
+                  instant
                 </span>
               </h3>
               <div className="bg-gray-100 dark:bg-black p-3 sm:p-4 rounded-md border border-gray-200 dark:border-gray-700 overflow-x-auto">
                 <pre className="text-sm sm:text-base">
-                  <code className="font-mono">$ ./my-app | terminax stream</code>
+                  <code className="font-mono">$ python main.py</code>
                 </pre>
                 <pre className="mt-2 text-sm">
                   <code className="text-purple-600 dark:text-purple-400 font-mono">
-                    # Stream output at https://terminax.io/v/{"{url}"}
-                  </code>
-                </pre>
-                <pre className="mt-1">
-                  <code className="text-gray-900 dark:text-white font-mono text-sm">
-                    Streaming live output...
+                    # Output appears instantly in the browser
                   </code>
                 </pre>
               </div>
@@ -278,75 +241,45 @@ export default function HomePage() {
 
             <div className="group bg-white dark:bg-[#0A0A0A] p-4 sm:p-6 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm dark:shadow-md dark:shadow-purple-900/10 hover:border-purple-400 dark:hover:border-purple-400 transition-all duration-300">
               <h3 className="text-purple-600 dark:text-purple-400 font-bold text-base sm:text-lg mb-3 flex items-center">
-                <span className="flex-1">Show output using netcat</span>
+                <span className="flex-1">Live Terminal Output</span>
                 <span className="text-xs font-normal px-2 py-1 bg-purple-100 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 rounded-full">
-                  netcat
+                  terminal
                 </span>
               </h3>
               <div className="bg-gray-100 dark:bg-black p-3 sm:p-4 rounded-md border border-gray-200 dark:border-gray-700 overflow-x-auto">
                 <pre className="text-sm sm:text-base">
                   <code className="font-mono whitespace-pre-wrap break-all sm:break-normal">
-                    $ go test -v | tee &gt;(nc terminax.io 1337)
+                    $ ./my-app | terminax stream
                   </code>
                 </pre>
                 <pre className="mt-2 text-sm">
                   <code className="text-purple-600 dark:text-purple-400 font-mono">
-                    serving at https://terminax.io/v/{"{url}"}
+                    # See logs and output live
                   </code>
-                </pre>
-                <pre className="mt-1">
-                  <code className="text-gray-900 dark:text-white font-mono text-sm">
-                    === RUN TestTerminaxBasic
-                  </code>
-                </pre>
-                <pre>
-                  <code className="text-gray-500 dark:text-gray-500 text-sm">{"{...}"}</code>
                 </pre>
               </div>
             </div>
 
             <div className="bg-white dark:bg-[#0A0A0A] p-6 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm dark:shadow-md dark:shadow-purple-900/10">
               <h3 className="text-purple-600 dark:text-purple-400 font-bold text-lg mb-3">
-                Show stdout and stderr:
+                Multi-language Support
               </h3>
               <div className="bg-gray-100 dark:bg-black p-4 rounded-md border border-gray-200 dark:border-gray-700">
                 <pre>
-                  <code>$ npm install 2&gt;&1 | terminax</code>
+                  <code>// Run C++, Java, Python, and more</code>
                 </pre>
                 <pre>
                   <code className="text-purple-600 dark:text-purple-400">
-                    serving at https://terminax.io/v/{"{url}"}
+                    $ javac Main.java && java Main
                   </code>
                 </pre>
                 <pre>
                   <code className="text-yellow-500 dark:text-yellow-400">
-                    npm WARN prefer global node-gyp@3.6.2
+                    $ g++ main.cpp -o main && ./main
                   </code>
                 </pre>
                 <pre>
-                  <code className="text-gray-500 dark:text-gray-500">{"{...}"}</code>
-                </pre>
-              </div>
-            </div>
-
-            <div className="bg-white dark:bg-[#0A0A0A] p-6 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm dark:shadow-md dark:shadow-purple-900/10">
-              <h3 className="text-purple-600 dark:text-purple-400 font-bold text-lg mb-3">
-                Delay before full-screen command:
-              </h3>
-              <div className="bg-gray-100 dark:bg-black p-4 rounded-md border border-gray-200 dark:border-gray-700">
-                <pre>
-                  <code>$ htop | terminax --delay 5</code>
-                </pre>
-                <pre>
-                  <code className="text-purple-600 dark:text-purple-400">
-                    serving at https://terminax.io/v/{"{url}"}
-                  </code>
-                </pre>
-                <pre>
-                  <code className="text-gray-500 dark:text-gray-500">{"{5 second delay}"}</code>
-                </pre>
-                <pre>
-                  <code className="text-gray-500 dark:text-gray-500">{"{...}"}</code>
+                  <code className="text-gray-500 dark:text-gray-500">// ...</code>
                 </pre>
               </div>
             </div>
