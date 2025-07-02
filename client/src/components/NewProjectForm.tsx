@@ -28,6 +28,7 @@ interface NewProjectFormProps {
 }
 
 const NewProjectForm: React.FC<NewProjectFormProps> = ({ repository, onBack, onSubmit }) => {
+  const isBlankProject = repository.id === -1;
   const [project, setProject] = useState({
     name: repository.name,
     description: repository.description || "",
@@ -41,36 +42,36 @@ const NewProjectForm: React.FC<NewProjectFormProps> = ({ repository, onBack, onS
     languages_url: repository.languageUrl,
     commithistory_url: repository.commitHistory,
     logo_url: repository.avatar_url || "",
+    template: "nodejs", 
   });
   const [branches, setBranches] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    if (isBlankProject) {
+      setBranches([]);
+      return;
+    }
     const fetchBranches = async () => {
       setLoading(true);
       try {
-        console.log("Branches for repository:", repository.branches_url);
         const response = await fetch(
           `${SERVER_URL}/github/branches?branchUrl=${encodeURIComponent(repository.branches_url)}`,
           {
             credentials: "include",
           }
         );
-
         if (!response.ok) throw new Error("Failed to fetch branches");
         const data = await response.json();
         setBranches(data.branches.map((branch: { name: string }) => branch.name) || []);
-        console.log(data.branches);
       } catch (error) {
-        console.error("Error:", error);
         setBranches([repository.default_branch]);
       } finally {
         setLoading(false);
       }
     };
-
     fetchBranches();
-  }, [repository.full_name, repository.default_branch]);
+  }, [repository.full_name, repository.default_branch, isBlankProject]);
 
   const updateField = (field: string, value: string | File | null) => {
     setProject((prev) => ({ ...prev, [field]: value }));
@@ -116,6 +117,7 @@ const NewProjectForm: React.FC<NewProjectFormProps> = ({ repository, onBack, onS
         languages_url: project.languages_url,
         selected_branch: project.selected_branch,
         commithistory_url: project.commithistory_url,
+        template: isBlankProject ? project.template : undefined,
       }),
       headers: {
         "Content-Type": "application/json",
@@ -173,15 +175,18 @@ const NewProjectForm: React.FC<NewProjectFormProps> = ({ repository, onBack, onS
             />
           </div>
 
-          <div>
-            <Label htmlFor="repo_name">Repository</Label>
-            <Input
-              id="repo_name"
-              value={project.repo_name}
-              className="mt-1 text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-purple-900/30"
-              disabled
-            />
-          </div>
+          {/* Only show repo_name if not blank project */}
+          {!isBlankProject && (
+            <div>
+              <Label htmlFor="repo_name">Repository</Label>
+              <Input
+                id="repo_name"
+                value={project.repo_name}
+                className="mt-1 text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-purple-900/30"
+                disabled
+              />
+            </div>
+          )}
 
           <div>
             <Label htmlFor="description">Description</Label>
@@ -194,34 +199,66 @@ const NewProjectForm: React.FC<NewProjectFormProps> = ({ repository, onBack, onS
             />
           </div>
 
-          <div>
-            <Label htmlFor="branch">Branch</Label>
-            <div className="relative mt-1">
+          {isBlankProject && (
+            <div>
+              <Label htmlFor="template">Template</Label>
               <select
-                id="branch"
-                value={project.selected_branch}
-                onChange={(e) => updateField("selected_branch", e.target.value)}
-                className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#0A0A0A] px-3 py-2 pr-10 focus:ring-2 focus:ring-purple-500 focus:border-transparent appearance-none"
-                disabled={loading}>
-                {loading ? (
-                  <option>Loading branches...</option>
-                ) : (
-                  branches.map((branch) => (
-                    <option key={branch} value={branch}>
-                      {branch}
-                    </option>
-                  ))
-                )}
+                id="template"
+                value={project.template}
+                onChange={(e) => updateField("template", e.target.value)}
+                className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#0A0A0A] px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:border-transparent appearance-none mt-1"
+              >
+                <option value="nodejs">Node.js</option>
+                <option value="python">Python</option>
+                <option value="nextjs">Next.js</option>
+                <option value="react">React</option>
+                <option value="html">HTML/CSS/JS</option>
+                <option value="bun">Bun</option>
+                <option value="deno">Deno</option>
+                <option value="rust">Rust</option>
+                <option value="go">Go</option>
+                <option value="java">Java</option>
+                <option value="csharp">C#</option>
+                <option value="cpp">C++</option>
+                <option value="php">PHP</option>
+                <option value="ruby">Ruby</option>
+                <option value="swift">Swift</option>
+                <option value="blank">Blank (no template)</option>
               </select>
-              <div className="absolute right-2 top-1/2 -translate-y-1/2">
-                {loading ? (
-                  <Loader2 className="w-4 h-4 text-gray-400 animate-spin" />
-                ) : (
-                  <GitBranch className="w-4 h-4 text-gray-400" />
-                )}
+            </div>
+          )}
+
+          {/* Only show branch select if not blank project */}
+          {!isBlankProject && (
+            <div>
+              <Label htmlFor="branch">Branch</Label>
+              <div className="relative mt-1">
+                <select
+                  id="branch"
+                  value={project.selected_branch}
+                  onChange={(e) => updateField("selected_branch", e.target.value)}
+                  className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#0A0A0A] px-3 py-2 pr-10 focus:ring-2 focus:ring-purple-500 focus:border-transparent appearance-none"
+                  disabled={loading}>
+                  {loading ? (
+                    <option>Loading branches...</option>
+                  ) : (
+                    branches.map((branch) => (
+                      <option key={branch} value={branch}>
+                        {branch}
+                      </option>
+                    ))
+                  )}
+                </select>
+                <div className="absolute right-2 top-1/2 -translate-y-1/2">
+                  {loading ? (
+                    <Loader2 className="w-4 h-4 text-gray-400 animate-spin" />
+                  ) : (
+                    <GitBranch className="w-4 h-4 text-gray-400" />
+                  )}
+                </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
 

@@ -204,26 +204,39 @@ const Setting = () => {
                   </p>
                 </div>
               </div>
-
               <div className="mt-4 p-4 rounded-lg bg-gray-50 dark:bg-[#171717] border border-gray-200 dark:border-gray-800">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-black dark:bg-white">
-                      <Github className="w-6 h-6 text-white dark:text-black" />
+                {user?.githubId ? (
+                  <>
+                    <div className="flex flex-col items-start gap-1">
+                      <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                        {user?.username ? `@${user.username}` : user?.email || "-"}
+                      </span>
+                      <span className="text-xs text-gray-500 dark:text-gray-400">
+                        Connected since {formatDate(user?.createdAt || new Date())}
+                      </span>
                     </div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                        @{user?.username}
-                      </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        Connected since {formatDate(user?.githubConnectedAt || new Date())}
-                      </p>
+                    <div className="mt-2 flex items-center justify-between">
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                        Active
+                      </span>
+                      <span className="ml-2 text-xs text-gray-500 dark:text-gray-400">
+                        GitHub ID:{" "}
+                        <span className="font-mono text-gray-700 dark:text-gray-200">
+                          {user.githubId}
+                        </span>
+                      </span>
                     </div>
+                  </>
+                ) : (
+                  <div className="flex flex-col items-start gap-1">
+                    <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                      {user?.email || "-"}
+                    </span>
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200 mt-2">
+                      Not Connected
+                    </span>
                   </div>
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200">
-                    Active
-                  </span>
-                </div>
+                )}
               </div>
             </div>
           </div>
@@ -254,6 +267,42 @@ const Setting = () => {
                     {user?.plan?.name || "Free Tier"}
                   </p>
                 </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2 text-sm">
+                    <User className="w-4 h-4 text-gray-500" />
+                    <span className="text-gray-600 dark:text-gray-400">Provider</span>
+                  </div>
+                  <p className="mt-1 text-sm font-medium text-gray-900 dark:text-white">
+                    {user?.provider || "-"}
+                  </p>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2 text-sm">
+                    <User className="w-4 h-4 text-gray-500" />
+                    <span className="text-gray-600 dark:text-gray-400">Email</span>
+                  </div>
+                  <p className="mt-1 text-sm font-medium text-gray-900 dark:text-white">
+                    {user?.email || "-"}
+                  </p>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2 text-sm">
+                    <User className="w-4 h-4 text-gray-500" />
+                    <span className="text-gray-600 dark:text-gray-400">GitHub ID</span>
+                  </div>
+                  <p className="mt-1 text-sm font-medium text-gray-900 dark:text-white">
+                    {user?.githubId || "-"}
+                  </p>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2 text-sm">
+                    <User className="w-4 h-4 text-gray-500" />
+                    <span className="text-gray-600 dark:text-gray-400">User ID</span>
+                  </div>
+                  <p className="mt-1 text-sm font-medium text-gray-900 dark:text-white">
+                    {user?._id || user?.id || "-"}
+                  </p>
+                </div>
               </div>
             </div>
           </div>
@@ -272,6 +321,35 @@ const Setting = () => {
               </ul>
             </div>
           </div>
+
+          {/* Stats */}
+          {user?.stats && (
+            <div className="bg-white dark:bg-[#0A0A0A] rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden">
+              <div className="p-6">
+                <h3 className="font-semibold text-gray-900 dark:text-white mb-4">Usage Stats</h3>
+                <ul className="space-y-2">
+                  <li className="flex items-center justify-between">
+                    <span className="text-gray-600 dark:text-gray-400">Total Apps</span>
+                    <span className="font-medium text-gray-900 dark:text-white">
+                      {user.stats.totalApps}
+                    </span>
+                  </li>
+                  <li className="flex items-center justify-between">
+                    <span className="text-gray-600 dark:text-gray-400">Active Sessions</span>
+                    <span className="font-medium text-gray-900 dark:text-white">
+                      {user.stats.activeSessions}
+                    </span>
+                  </li>
+                  <li className="flex items-center justify-between">
+                    <span className="text-gray-600 dark:text-gray-400">Total Sessions</span>
+                    <span className="font-medium text-gray-900 dark:text-white">
+                      {user.stats.totalSessions}
+                    </span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          )}
 
           {/* Danger Zone */}
           <div className="bg-white dark:bg-[#0A0A0A] rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden">

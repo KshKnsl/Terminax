@@ -14,14 +14,11 @@ import utilRoutes from "./routes/util";
 
 dotenv.config();
 mongoose
-  .connect(process.env.MONGODB_URI || "mongodb://localhost:27017/terminax")
+  .connect(process.env.MONGODB_URI || "mongodb://localhost:27017/terminaux")
   .then(() => console.info("Connected to MongoDB"))
   .catch((err) => console.error(`MongoDB connection error: ${err}`));
 
 const app = express();
-
-// Ensure secure cookies in production
-const isProduction = process.env.NODE_ENV === "production";
 
 app.use(
   cors({
@@ -41,9 +38,8 @@ app.use(
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: isProduction,
       httpOnly: true,
-      sameSite: isProduction ? "strict" : "lax",
+      sameSite: "lax",
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
     },
   })
@@ -53,13 +49,12 @@ app.use(passport.initialize());
 app.use(passport.session());
 configurePassport();
 
-// Add session check middleware
 app.use((req, res, next) => {
   if (req.path.startsWith("/auth") || req.path === "/") {
     return next();
   }
   if (!req.isAuthenticated()) {
-    return res.status(401).json({ error: "Unauthorized", message: "No active session found" });
+    return res.status(401).json({ error: "Unauthorized", message: "Unauthorized" });
   }
   next();
 });

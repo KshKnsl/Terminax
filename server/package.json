@@ -16,8 +16,10 @@
   "license": "ISC",
   "packageManager": "pnpm@10.9.0",
   "dependencies": {
+    "@types/bcryptjs": "^3.0.0",
     "@types/morgan": "^1.9.10",
     "bcrypt": "^6.0.0",
+    "bcryptjs": "^3.0.2",
     "cloudinary": "^2.7.0",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
@@ -29,7 +31,10 @@
     "node-pty": "^1.0.0",
     "nodemailer": "^7.0.3",
     "passport": "^0.7.0",
-    "passport-github2": "^0.1.12"
+    "passport-github2": "^0.1.12",
+    "passport-google-oauth20": "^2.0.0",
+    "passport-local": "^1.0.0",
+    "simple-git": "^3.28.0"
   },
   "devDependencies": {
     "@types/axios": "^0.14.4",
@@ -41,6 +46,8 @@
     "@types/nodemailer": "^6.4.17",
     "@types/passport": "^1.0.16",
     "@types/passport-github2": "^1.2.9",
+    "@types/passport-google-oauth20": "^2.0.16",
+    "@types/passport-local": "^1.0.38",
     "@typescript-eslint/eslint-plugin": "^8.35.0",
     "@typescript-eslint/parser": "^8.35.0",
     "axios": "^1.10.0",

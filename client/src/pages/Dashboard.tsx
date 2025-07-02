@@ -5,7 +5,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Plus, Terminal, Settings } from "lucide-react";
+import { Plus, Terminal, Settings, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DotPattern } from "@/components/ui/dot-pattern";
 import GithubRepoSelector from "@/components/GithubRepoSelector";
@@ -19,15 +19,22 @@ interface Application {
   _id: string;
   id: string;
   name: string;
-  repo_name: string;
-  repo_url: string;
+  repoid?: string;
   logo_url: string;
+  repo_url?: string;
+  repo_name?: string;
+  branch_url?: string;
   description?: string;
-  selected_branch: string;
-  languages_url: string;
-  commithistory_url: string;
+  languages_url?: string;
+  selected_branch?: string;
+  commithistory_url?: string;
+  lastDeploymentDate?: string;
+  deploymentLink?: string;
   createdAt: string;
   updatedAt: string;
+  ownerId: string;
+  template: string;
+  codestorageUrl?: string;
 }
 
 interface Repository {
@@ -111,7 +118,7 @@ export default function Dashboard() {
                   size="lg"
                   className="w-full sm:w-auto bg-purple-600 hover:bg-purple-700 text-white shadow-lg">
                   <Plus className="w-4 h-4 mr-2" />
-                  Deploy New App
+                  Start a new project
                 </Button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-[600px]">
@@ -186,11 +193,31 @@ export default function Dashboard() {
                             <h3 className="font-semibold text-gray-900 dark:text-white">
                               {app.name}
                             </h3>
-                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-700 dark:bg-purple-900/20 dark:text-purple-400">
-                              {app.selected_branch}
-                            </span>
+                            {app.selected_branch && (
+                              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-700 dark:bg-purple-900/20 dark:text-purple-400">
+                                {app.selected_branch}
+                              </span>
+                            )}
+                            {app.template && (
+                              <span className="ml-2 inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-200">
+                                {app.template}
+                              </span>
+                            )}
                           </div>
                         </div>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className="ml-2 text-gray-400 hover:text-purple-600 dark:hover:text-purple-400"
+                          onClick={e => {
+                            e.stopPropagation();
+                            navigate(`/project/info/${app._id}`);
+                          }}
+                          aria-label="Project Settings"
+                        >
+                          <Info className="w-5 h-5" /> {"&"}
+                          <Settings className="w-5 h-5" />
+                        </Button>
                       </div>
 
                       <p className="text-sm text-gray-600 dark:text-gray-300 mb-4 line-clamp-2">
@@ -198,8 +225,13 @@ export default function Dashboard() {
                       </p>
                       <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
                         <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                          {app.repo_name}
+                          {app.repo_name || app.template}
                         </div>
+                        {app.deploymentLink && (
+                          <div className="text-xs text-green-600 truncate mt-1">
+                            Deploy: {app.deploymentLink}
+                          </div>
+                        )}
                       </div>
                     </div>
                   ))

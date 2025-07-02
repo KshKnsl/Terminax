@@ -28,17 +28,12 @@ async function sendMail(
   const emailTemplate = new EmailTemplate(name, purpose, message);
   const { subject, content } = emailTemplate.getContent();
 
-  try {
-    await transporter.sendMail({
-      from: process.env.EMAIL,
-      to: toEmail,
-      subject: subject,
-      html: content,
-    });
-  } catch (error) {
-    console.error("Failed to send email:", error);
-    throw new Error("Failed to send email");
-  }
+  await transporter.sendMail({
+    from: process.env.EMAIL,
+    to: toEmail,
+    subject: subject,
+    html: content,
+  });
 }
 
 export { sendMail, EmailOptions };

@@ -2,20 +2,22 @@ import mongoose, { Document, Schema } from "mongoose";
 
 export interface ProjectInterface extends Document {
   name: string;
-  repoid: string;
+  repoid?: string;
   logo_url: string;
-  repo_url: string;
-  repo_name: string;
-  branch_url: string;
+  repo_url?: string;
+  repo_name?: string;
+  branch_url?: string;
   description?: string;
-  languages_url: string;
-  selected_branch: string;
-  commithistory_url: string;
+  languages_url?: string;
+  selected_branch?: string;
+  commithistory_url?: string;
   lastDeploymentDate?: Date;
   deploymentLink?: string;
   createdAt: Date;
   updatedAt: Date;
   ownerId: string;
+  template: string;
+  codestorageUrl?: string;
 }
 
 const ProjectSchema = new Schema(
@@ -26,40 +28,41 @@ const ProjectSchema = new Schema(
     },
     repoid: {
       type: String,
-      required: true,
+      required: false,
       unique: true,
+      sparse: true,
     },
     logo_url: {
       type: String,
-      required: true,
+      required: false,
     },
     repo_url: {
       type: String,
-      required: true,
+      required: false,
     },
     repo_name: {
       type: String,
-      required: true,
+      required: false,
     },
     branch_url: {
       type: String,
-      required: true,
+      required: false,
     },
     description: {
       type: String,
-      required: true,
+      required: false,
     },
     languages_url: {
       type: String,
-      required: true,
+      required: false,
     },
     selected_branch: {
       type: String,
-      required: true,
+      required: false,
     },
     commithistory_url: {
       type: String,
-      required: true,
+      required: false,
     },
     lastDeploymentDate: {
       type: Date,
@@ -74,6 +77,14 @@ const ProjectSchema = new Schema(
     ownerId: {
       type: String,
       required: true,
+    },
+    template: {
+      type: String,
+      required: true,
+    },
+    codestorageUrl: {
+      type: String,
+      required: false,
     },
   },
   { timestamps: true }

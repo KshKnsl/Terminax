@@ -1,9 +1,9 @@
 import mongoose, { Document, Schema } from "mongoose";
 
 export interface UserInterface extends Document {
-  username: string;
+  username?: string;
   displayName?: string;
-  email?: string;
+  email: string;
   avatar?: string;
   provider: string;
   githubId?: string;
@@ -23,19 +23,23 @@ export interface UserInterface extends Document {
   updatedAt: Date;
   accessToken?: string;
   refreshToken?: string;
+  password?: string; 
 }
 
 const UserSchema = new Schema(
   {
+    password: {
+      type: String,
+      select: false, // Do not return password by default
+    },
     username: {
       type: String,
-      required: true,
       unique: true,
     },
     displayName: String,
     email: {
       type: String,
-      unique: true,
+      required: true,
     },
     avatar: String,
     provider: {
@@ -45,6 +49,12 @@ const UserSchema = new Schema(
     githubId: {
       type: String,
       unique: true,
+      sparse: true, // Allows multiple docs with undefined githubId
+    },
+    googleId: {
+      type: String,
+      unique: true,
+      sparse: true, // Allows multiple docs with undefined googleId
     },
     plan: {
       name: {

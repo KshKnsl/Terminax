@@ -3,24 +3,29 @@ import { createContext, useState, useEffect, useContext, type ReactNode } from "
 const SERVER_URL = import.meta.env.VITE_SERVER_URL || "http://localhost:3000";
 
 interface User {
+  _id: string;
   id: string;
   username: string;
-  displayName: string | null;
-  avatar: string | null;
-  plan: {
+  displayName?: string | null;
+  avatar?: string | null;
+  email?: string;
+  provider: string;
+  githubId?: string;
+  accessToken?: string;
+  plan?: {
     name: string;
     maxApps: number;
     maxSessions: number;
     features: string[];
   };
-  stats: {
+  stats?: {
     totalApps: number;
     activeSessions: number;
     totalSessions: number;
   };
-  createdAt: string;
-  lastLogin: string;
-  githubConnectedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
+  lastLogin?: string;
 }
 
 interface AuthContextType {

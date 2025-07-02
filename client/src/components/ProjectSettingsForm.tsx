@@ -13,19 +13,21 @@ import { UserCircle2 } from "lucide-react";
 interface ProjectData {
   _id: string;
   name: string;
-  repoid: string;
+  repoid?: string;
   logo_url: string;
-  repo_url: string;
-  repo_name: string;
-  branch_url: string;
+  repo_url?: string;
+  repo_name?: string;
+  branch_url?: string;
   description?: string;
-  languages_url: string;
-  selected_branch: string;
-  commithistory_url: string;
+  languages_url?: string;
+  selected_branch?: string;
+  commithistory_url?: string;
   lastDeploymentDate?: string;
   deploymentLink?: string;
   createdAt: string;
   updatedAt: string;
+  template: string;
+  codestorageUrl?: string;
 }
 
 interface ProjectSettingsFormProps {
@@ -48,6 +50,8 @@ const ProjectSettingsForm: React.FC<ProjectSettingsFormProps> = ({ project, onPr
   const [saving, setSaving] = React.useState(false);
   const [error, setError] = React.useState("");
   const [success, setSuccess] = React.useState("");
+
+  const isTemplateProject = !project.repoid && !project.repo_url;
 
   React.useEffect(() => {
     if (logoFile) {
@@ -180,6 +184,21 @@ const ProjectSettingsForm: React.FC<ProjectSettingsFormProps> = ({ project, onPr
             <div>
               <h3 className="font-semibold text-gray-900 dark:text-white">Project Settings</h3>
               <p className="text-sm text-gray-500 dark:text-gray-400">Edit your project details</p>
+              <span className="text-xs text-gray-400 dark:text-gray-500">
+                Type: {isTemplateProject ? `Template (${project.template})` : "GitHub"}
+              </span>
+              {project.codestorageUrl && (
+                <div className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                  Code Storage:{" "}
+                  <a
+                    href={project.codestorageUrl}
+                    className="underline"
+                    target="_blank"
+                    rel="noopener noreferrer">
+                    {project.codestorageUrl}
+                  </a>
+                </div>
+              )}
             </div>
           </div>
           <form onSubmit={handleDetailsSave} className="space-y-6">
@@ -273,77 +292,81 @@ const ProjectSettingsForm: React.FC<ProjectSettingsFormProps> = ({ project, onPr
         </div>
       </div>
       {/* Branch Selection Card */}
-      <div className="bg-white dark:bg-[#0A0A0A] rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden">
-        <div className="p-6">
-          <div className="flex items-center space-x-3 mb-6">
-            <div className="w-10 h-10 bg-purple-100 dark:bg-purple-900/20 rounded-lg flex items-center justify-center">
-              <svg
-                className="w-5 h-5 text-purple-600 dark:text-purple-400"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M6 3v12M6 15a3 3 0 100 6 3 3 0 000-6zm0 0a9 9 0 019-9h3"
-                />
-              </svg>
+      {!isTemplateProject && (
+        <div className="bg-white dark:bg-[#0A0A0A] rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden">
+          <div className="p-6">
+            <div className="flex items-center space-x-3 mb-6">
+              <div className="w-10 h-10 bg-purple-100 dark:bg-purple-900/20 rounded-lg flex items-center justify-center">
+                <svg
+                  className="w-5 h-5 text-purple-600 dark:text-purple-400"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M6 3v12M6 15a3 3 0 100 6 3 3 0 000-6zm0 0a9 9 0 019-9h3"
+                  />
+                </svg>
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-900 dark:text-white">Branch Selection</h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Change the selected branch
+                </p>
+              </div>
             </div>
-            <div>
-              <h3 className="font-semibold text-gray-900 dark:text-white">Branch Selection</h3>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Change the selected branch</p>
-            </div>
+            <form onSubmit={handleBranchSave} className="space-y-4">
+              <div>
+                <label
+                  htmlFor="branch"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Selected Branch
+                </label>
+                {branchesLoading ? (
+                  <div className="text-xs text-gray-400">Loading branches...</div>
+                ) : branchesError ? (
+                  <div className="text-xs text-red-500">{branchesError}</div>
+                ) : (
+                  <Select value={selectedBranch} onValueChange={setSelectedBranch}>
+                    <SelectTrigger className="w-full bg-gray-50 dark:bg-black border-gray-200 dark:border-gray-700 focus:border-purple-500 focus:ring-purple-500">
+                      <SelectValue placeholder="Select a branch" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {branches.map((branch) => (
+                        <SelectItem
+                          key={branch}
+                          value={branch}
+                          className={
+                            branch === project.selected_branch
+                              ? "bg-purple-100 dark:bg-purple-900/30 font-semibold"
+                              : ""
+                          }>
+                          <span className="flex items-center gap-2">
+                            {branch}
+                            {branch === project.selected_branch && (
+                              <span className="ml-2 px-2 py-0.5 rounded-full text-xs bg-purple-500 text-white">
+                                Current
+                              </span>
+                            )}
+                          </span>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              </div>
+              <Button
+                type="submit"
+                disabled={saving || branchesLoading}
+                className="w-full bg-purple-500 hover:bg-purple-600 text-white shadow-sm dark:shadow-purple-900/20">
+                {saving ? "Saving..." : "Update Branch"}
+              </Button>
+            </form>
           </div>
-          <form onSubmit={handleBranchSave} className="space-y-4">
-            <div>
-              <label
-                htmlFor="branch"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Selected Branch
-              </label>
-              {branchesLoading ? (
-                <div className="text-xs text-gray-400">Loading branches...</div>
-              ) : branchesError ? (
-                <div className="text-xs text-red-500">{branchesError}</div>
-              ) : (
-                <Select value={selectedBranch} onValueChange={setSelectedBranch}>
-                  <SelectTrigger className="w-full bg-gray-50 dark:bg-black border-gray-200 dark:border-gray-700 focus:border-purple-500 focus:ring-purple-500">
-                    <SelectValue placeholder="Select a branch" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {branches.map((branch) => (
-                      <SelectItem
-                        key={branch}
-                        value={branch}
-                        className={
-                          branch === project.selected_branch
-                            ? "bg-purple-100 dark:bg-purple-900/30 font-semibold"
-                            : ""
-                        }>
-                        <span className="flex items-center gap-2">
-                          {branch}
-                          {branch === project.selected_branch && (
-                            <span className="ml-2 px-2 py-0.5 rounded-full text-xs bg-purple-500 text-white">
-                              Current
-                            </span>
-                          )}
-                        </span>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            </div>
-            <Button
-              type="submit"
-              disabled={saving || branchesLoading}
-              className="w-full bg-purple-500 hover:bg-purple-600 text-white shadow-sm dark:shadow-purple-900/20">
-              {saving ? "Saving..." : "Update Branch"}
-            </Button>
-          </form>
         </div>
-      </div>
+      )}
     </div>
   );
 };

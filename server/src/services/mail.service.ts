@@ -22,15 +22,11 @@ export class MailService {
     const template = new EmailTemplate(name, purpose, message);
     const { subject, content } = template.getContent();
 
-    try {
-      await this.transporter.sendMail({
-        from: process.env.EMAIL,
-        to: toEmail,
-        subject: "ReadMates: " + purpose,
-        html: content,
-      });
-    } catch (error) {
-      console.error("Error sending email:", error);
-    }
+    await this.transporter.sendMail({
+      from: process.env.EMAIL,
+      to: toEmail,
+      subject: "ReadMates: " + purpose,
+      html: content,
+    });
   }
 }

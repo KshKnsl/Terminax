@@ -31,4 +31,23 @@ router.get("/logout", AuthController.logout);
 
 router.delete("/user", AuthController.deleteAccount);
 
+router.post("/register", AuthController.registerWithEmail);
+router.post("/login", AuthController.loginWithEmail);
+
+router.get(
+  "/google",
+  passport.authenticate("google", {
+    scope: ["profile", "email"],
+    session: true,
+  })
+);
+router.get(
+  "/google/callback",
+  passport.authenticate("google", {
+    failureRedirect: `${process.env.CLIENT_URL || "http://localhost:5173"}/login`,
+    session: true,
+  }),
+  AuthController.handleGoogleCallback
+);
+
 export default router;
