@@ -9,6 +9,16 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { UserCircle2 } from "lucide-react";
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogClose,
+} from "@/components/ui/dialog";
 
 interface ProjectData {
   _id: string;
@@ -28,6 +38,7 @@ interface ProjectData {
   updatedAt: string;
   template: string;
   codestorageUrl?: string;
+  command: string;
 }
 
 interface ProjectSettingsFormProps {
@@ -44,6 +55,7 @@ const ProjectSettingsForm: React.FC<ProjectSettingsFormProps> = ({ project, onPr
   const [logoPreview, setLogoPreview] = React.useState<string | null>(project.logo_url || null);
   const [logoFile, setLogoFile] = React.useState<File | null>(null);
   const [selectedBranch, setSelectedBranch] = React.useState(project.selected_branch);
+  const [command, setCommand] = React.useState(project.command || "");
   const [branches, setBranches] = React.useState<string[]>([]);
   const [branchesLoading, setBranchesLoading] = React.useState(false);
   const [branchesError, setBranchesError] = React.useState("");
@@ -51,6 +63,7 @@ const ProjectSettingsForm: React.FC<ProjectSettingsFormProps> = ({ project, onPr
   const [error, setError] = React.useState("");
   const [success, setSuccess] = React.useState("");
   const [deleting, setDeleting] = React.useState(false);
+  const [confirmation, setConfirmation] = React.useState("");
 
   const isTemplateProject = !project.repoid && !project.repo_url;
 
@@ -74,6 +87,7 @@ const ProjectSettingsForm: React.FC<ProjectSettingsFormProps> = ({ project, onPr
     setLogoUrl(project.logo_url || "");
     setLogoPreview(project.logo_url || null);
     setSelectedBranch(project.selected_branch);
+    setCommand(project.command || "");
   }, [project]);
 
   // Fetch branches from backend
@@ -129,7 +143,7 @@ const ProjectSettingsForm: React.FC<ProjectSettingsFormProps> = ({ project, onPr
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ id: project._id, name, description, logo_url: uploadUrl }),
+        body: JSON.stringify({ id: project._id, name, description, logo_url: uploadUrl, command }),
       });
       const data = await res.json();
       if (data.success && data.project) {
@@ -169,7 +183,6 @@ const ProjectSettingsForm: React.FC<ProjectSettingsFormProps> = ({ project, onPr
   };
 
   const handleDelete = async () => {
-    if (!window.confirm("Are you sure you want to delete this project? This action cannot be undone.")) return;
     setDeleting(true);
     setError("");
     setSuccess("");
@@ -192,16 +205,18 @@ const ProjectSettingsForm: React.FC<ProjectSettingsFormProps> = ({ project, onPr
   };
 
   return (
-    <div className="space-y-6">
+    <div className="max-w-xl mx-auto space-y-8">
       {/* Project Details Card */}
-      <div className="bg-white dark:bg-[#0A0A0A] rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden">
+      <div className="bg-white dark:bg-[#0A0A0A] rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden shadow-md dark:shadow-lg">
         <div className="p-6">
           <div className="flex items-center space-x-3 mb-6">
             <div className="w-10 h-10 bg-purple-100 dark:bg-purple-900/20 rounded-lg flex items-center justify-center">
               <UserCircle2 className="w-5 h-5 text-purple-600 dark:text-purple-400" />
             </div>
             <div>
-              <h3 className="font-semibold text-gray-900 dark:text-white">Project Settings</h3>
+              <h3 className="font-semibold text-gray-900 dark:text-white text-lg">
+                Project Settings
+              </h3>
               <p className="text-sm text-gray-500 dark:text-gray-400">Edit your project details</p>
               <span className="text-xs text-gray-400 dark:text-gray-500">
                 Type: {isTemplateProject ? `Template (${project.template})` : "GitHub"}
@@ -288,6 +303,21 @@ const ProjectSettingsForm: React.FC<ProjectSettingsFormProps> = ({ project, onPr
                   disabled={saving}
                 />
               </div>
+              <div>
+                <label htmlFor="command" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Run Command
+                </label>
+                <Input
+                  id="command"
+                  type="text"
+                  value={command}
+                  onChange={e => setCommand(e.target.value)}
+                  className="mt-1 block w-full bg-gray-50 dark:bg-black border-gray-200 dark:border-gray-700 focus:border-purple-500 focus:ring-purple-500"
+                  placeholder="e.g. npm start, python main.py, etc."
+                  disabled={saving}
+                  required
+                />
+              </div>
               <div className="pt-4">
                 <Button
                   type="submit"
@@ -312,7 +342,7 @@ const ProjectSettingsForm: React.FC<ProjectSettingsFormProps> = ({ project, onPr
       </div>
       {/* Branch Selection Card */}
       {!isTemplateProject && (
-        <div className="bg-white dark:bg-[#0A0A0A] rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden">
+        <div className="bg-white dark:bg-[#0A0A0A] rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden shadow-md dark:shadow-lg">
           <div className="p-6">
             <div className="flex items-center space-x-3 mb-6">
               <div className="w-10 h-10 bg-purple-100 dark:bg-purple-900/20 rounded-lg flex items-center justify-center">
@@ -388,15 +418,73 @@ const ProjectSettingsForm: React.FC<ProjectSettingsFormProps> = ({ project, onPr
       )}
       {/* Delete Project Button */}
       <div className="flex justify-end pt-4">
-        <Button
-          type="button"
-          variant="destructive"
-          className="bg-red-600 hover:bg-red-700 text-white"
-          disabled={deleting}
-          onClick={handleDelete}
-        >
-          {deleting ? "Deleting..." : "Delete Project"}
-        </Button>
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button
+              type="button"
+              variant="destructive"
+              className="bg-red-600 hover:bg-red-700 text-white"
+              disabled={deleting}>
+              Delete Project
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="bg-white dark:bg-black border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-200 shadow-lg dark:shadow-purple-900/20 max-w-md">
+            <DialogHeader>
+              <DialogTitle className="text-red-600 dark:text-red-400 font-mono">
+                Delete Project
+              </DialogTitle>
+              <DialogDescription className="text-gray-600 dark:text-gray-300">
+                This action is <span className="font-semibold">irreversible</span>. All project data
+                will be permanently deleted. Please type{" "}
+                <span className="text-red-600 dark:text-red-400 font-bold font-mono">
+                  delete my project
+                </span>{" "}
+                to confirm.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="py-4">
+              <Input
+                type="text"
+                value={confirmation}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setConfirmation(e.target.value)
+                }
+                placeholder="delete my project"
+                className="bg-gray-50 dark:bg-black border border-gray-200 dark:border-gray-700 focus:border-red-500 dark:focus:border-red-500 focus:ring-red-500 dark:focus:ring-red-500 font-mono"
+                autoComplete="off"
+              />
+              {error && (
+                <p className="text-red-600 dark:text-red-400 text-sm mt-2 font-mono animate-pulse">
+                  {error}
+                </p>
+              )}
+            </div>
+            <DialogFooter className="gap-2">
+              <DialogClose asChild>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  className="bg-gray-100 dark:bg-black hover:bg-gray-200 dark:hover:bg-[#0A0A0A] text-gray-800 dark:text-white border border-gray-300 dark:border-gray-600 transition-all duration-200">
+                  Cancel
+                </Button>
+              </DialogClose>
+              <Button
+                type="button"
+                variant="destructive"
+                onClick={handleDelete}
+                disabled={deleting || confirmation !== "delete my project"}
+                className={`text-white transition-all duration-200 ${deleting ? "opacity-70" : ""} bg-red-600 dark:bg-red-700 hover:bg-red-700 dark:hover:bg-red-600 border border-red-700 dark:border-red-800 shadow-sm dark:shadow-red-900/30`}>
+                {deleting ? (
+                  <>
+                    <span className="animate-pulse">Deleting</span>...
+                  </>
+                ) : (
+                  "Delete Project"
+                )}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );

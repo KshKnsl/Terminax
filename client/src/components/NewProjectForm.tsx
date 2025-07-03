@@ -29,6 +29,43 @@ interface NewProjectFormProps {
 
 const NewProjectForm: React.FC<NewProjectFormProps> = ({ repository, onBack, onSubmit }) => {
   const isBlankProject = repository.id === -1;
+  const getDefaultCommand = (template: string) => {
+    switch (template) {
+      case "nodejs":
+        return "npm start";
+      case "python":
+        return "python main.py";
+      case "nextjs":
+        return "npm run dev";
+      case "react":
+        return "npm start";
+      case "html":
+        return "open index.html";
+      case "bun":
+        return "bun run start";
+      case "deno":
+        return "deno run main.ts";
+      case "rust":
+        return "cargo run";
+      case "go":
+        return "go run main.go";
+      case "java":
+        return "java Main";
+      case "csharp":
+        return "dotnet run";
+      case "cpp":
+        return "./main";
+      case "php":
+        return "php -S localhost:8000";
+      case "ruby":
+        return "ruby main.rb";
+      case "swift":
+        return "swift run";
+      default:
+        return "";
+    }
+  };
+
   const [project, setProject] = useState({
     name: repository.name,
     description: repository.description || "",
@@ -42,10 +79,12 @@ const NewProjectForm: React.FC<NewProjectFormProps> = ({ repository, onBack, onS
     languages_url: repository.languageUrl,
     commithistory_url: repository.commitHistory,
     logo_url: repository.avatar_url || "",
-    template: "nodejs", 
+    template: "nodejs",
+    command: isBlankProject ? getDefaultCommand("nodejs") : "",
   });
   const [branches, setBranches] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
+  const [creating, setCreating] = useState(false);
 
   useEffect(() => {
     if (isBlankProject) {
@@ -74,7 +113,12 @@ const NewProjectForm: React.FC<NewProjectFormProps> = ({ repository, onBack, onS
   }, [repository.full_name, repository.default_branch, isBlankProject]);
 
   const updateField = (field: string, value: string | File | null) => {
-    setProject((prev) => ({ ...prev, [field]: value }));
+    setProject((prev) => {
+      if (field === "template" && isBlankProject && typeof value === "string") {
+        return { ...prev, template: value, command: getDefaultCommand(value) };
+      }
+      return { ...prev, [field]: value };
+    });
 
     if (field === "logo" && value instanceof File) {
       const reader = new FileReader();
@@ -86,7 +130,8 @@ const NewProjectForm: React.FC<NewProjectFormProps> = ({ repository, onBack, onS
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!project.name || loading) return;
+    if (!project.name || loading || creating) return;
+    setCreating(true);
 
     let logoUrl = project.logo_url;
     if (project.logo) {
@@ -118,12 +163,14 @@ const NewProjectForm: React.FC<NewProjectFormProps> = ({ repository, onBack, onS
         selected_branch: project.selected_branch,
         commithistory_url: project.commithistory_url,
         template: isBlankProject ? project.template : undefined,
+        command: project.command,
       }),
       headers: {
         "Content-Type": "application/json",
       },
     });
 
+    setCreating(false);
     if (onSubmit) {
       onSubmit();
     }
@@ -175,7 +222,6 @@ const NewProjectForm: React.FC<NewProjectFormProps> = ({ repository, onBack, onS
             />
           </div>
 
-          {/* Only show repo_name if not blank project */}
           {!isBlankProject && (
             <div>
               <Label htmlFor="repo_name">Repository</Label>
@@ -198,6 +244,17 @@ const NewProjectForm: React.FC<NewProjectFormProps> = ({ repository, onBack, onS
               rows={3}
             />
           </div>
+          <div>
+            <Label htmlFor="command">Command to run project <span className="text-red-500">*</span></Label>
+            <Input
+              id="command"
+              value={project.command}
+              onChange={(e) => updateField("command", e.target.value)}
+              className="mt-1"
+              required
+              placeholder="e.g. npm start, python main.py, etc."
+            />
+          </div>
 
           {isBlankProject && (
             <div>
@@ -206,8 +263,7 @@ const NewProjectForm: React.FC<NewProjectFormProps> = ({ repository, onBack, onS
                 id="template"
                 value={project.template}
                 onChange={(e) => updateField("template", e.target.value)}
-                className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#0A0A0A] px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:border-transparent appearance-none mt-1"
-              >
+                className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#0A0A0A] px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:border-transparent appearance-none mt-1">
                 <option value="nodejs">Node.js</option>
                 <option value="python">Python</option>
                 <option value="nextjs">Next.js</option>
@@ -228,7 +284,6 @@ const NewProjectForm: React.FC<NewProjectFormProps> = ({ repository, onBack, onS
             </div>
           )}
 
-          {/* Only show branch select if not blank project */}
           {!isBlankProject && (
             <div>
               <Label htmlFor="branch">Branch</Label>
@@ -269,9 +324,16 @@ const NewProjectForm: React.FC<NewProjectFormProps> = ({ repository, onBack, onS
         <Button
           type="submit"
           className="bg-purple-600 hover:bg-purple-700 text-white"
-          disabled={loading || !project.name}
+          disabled={loading || !project.name || creating}
           onClick={handleSubmit}>
-          Create Project
+          {creating ? (
+            <>
+              <Loader2 className="w-4 h-4 mr-2 animate-spin inline-block align-middle" />
+              Creating...
+            </>
+          ) : (
+            "Create Project"
+          )}
         </Button>
       </div>
     </form>

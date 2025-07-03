@@ -21,19 +21,15 @@ export class UserController {
 
     const { displayName } = req.body as { displayName?: string };
     const userId = (req.user as UserInterface).id;
-    const currentUser = req.user as UserInterface;
-    let avatarUrl = currentUser.avatar;
+    const curr = req.user as UserInterface;
+    let avat = curr.avatar;
 
-    if (req.file) avatarUrl = await uploadImage(req.file.path, userId);
+    if (req.file) avat = await uploadImage(req.file.path, userId);
 
-    const updatedUser = await User.findByIdAndUpdate(
-      userId,
-      {
-        displayName: displayName?.trim(),
-        avatar: avatarUrl,
-      },
-      { new: true }
-    );
+    const updatedUser = await User.findByIdAndUpdate(userId, {
+      displayName: displayName?.trim(),
+      avatar: avat,
+    });
     res.json({
       message: "Profile updated successfully",
       user: updatedUser,

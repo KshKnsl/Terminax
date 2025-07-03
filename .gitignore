@@ -135,3 +135,5 @@ uploads/
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+fetched_active_projects
+cloned_repos

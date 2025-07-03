@@ -7,4 +7,6 @@ router.get("/get/:id", ProjectController.getProjectById);
 router.put("/update/:id", ProjectController.updateProject);
 router.post("/updateBranch", ProjectController.updateBranch);
 router.post("/updateDetails", ProjectController.updateDetails);
+router.delete("/delete", ProjectController.deleteProject);
+router.get("/getAllFiles/:id", ProjectController.fetchProjectFilesById);
 export default router;

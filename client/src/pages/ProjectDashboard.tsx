@@ -32,6 +32,7 @@ export interface ProjectData {
   ownerId: string;
   template: string;
   codestorageUrl?: string;
+  command: string;
 }
 
 const SERVER_URL = import.meta.env.VITE_SERVER_URL || "http://localhost:3000";
@@ -232,6 +233,12 @@ const ProjectDashboard = () => {
             <p className="text-gray-700 dark:text-gray-200 whitespace-pre-line">
               {project.description || "No description provided."}
             </p>
+            <div className="mt-4">
+              <span className="font-semibold text-gray-800 dark:text-gray-100">Run Command:</span>
+              <span className="ml-2 font-mono text-xs bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
+                {project.command}
+              </span>
+            </div>
           </div>
           {/* Key Info and Analytics Section */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">

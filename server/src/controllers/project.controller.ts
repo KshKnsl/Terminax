@@ -1,23 +1,23 @@
-import { Project, ProjectInterface } from "../models/project";
+import { Project } from "../models/project";
 import { Request, Response } from "express";
 import { cloneRepository } from "../utils/cloner.util";
-function generatedeploymentLink(length = 5) {
-  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  let result = "";
-  for (let i = 0; i < length; i++) {
-    result += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return result;
-}
+import { fetchProjectFilesFromFilebase } from "../utils/fetchProjectFiles";
+
+const genLink = (len = 5) =>
+  Array.from(
+    { length: len },
+    () =>
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"[
+        Math.floor(Math.random() * 62)
+      ]
+  ).join("");
 export class ProjectController {
   static async createProject(req: Request, res: Response) {
-    let deploymentLink;
-    let unique = false;
-    while (!unique) {
-      deploymentLink = generatedeploymentLink();
-      const exists = await Project.findOne({ deploymentLink });
-      if (!exists) unique = true;
-    }
+    let link;
+    do {
+      link = genLink();
+    } while (await Project.findOne({ deploymentLink: link }));
+
     const {
       name,
       logo_url,
@@ -30,52 +30,34 @@ export class ProjectController {
       languages_url,
       selected_branch,
       commithistory_url,
+      command,
     } = req.body;
+    const uid = (req as any).user?.id || (req as any).user?._id;
+    const base = { name, logo_url, template, ownerId: uid, deploymentLink: link, command };
 
-    const ownerId = (req as any).user?.id || (req as any).user?._id;
-    const baseData = {
-      name,
-      logo_url,
-      template,
-      ownerId,
-      deploymentLink,
-    };
+    const  projectData =
+      repoid && repo_url
+        ? {
+            ...base,
+            repoid,
+            repo_url,
+            repo_name,
+            branch_url,
+            description,
+            languages_url,
+            selected_branch,
+            commithistory_url,
+          }
+        : { ...base, description };
 
-    let projectData: any;
-    // GitHub-based project
-    if (repoid && repo_url) {
-      projectData = {
-        ...baseData,
-        repoid,
-        repo_url,
-        repo_name,
-        branch_url,
-        description,
-        languages_url,
-        selected_branch,
-        commithistory_url,
-      };
-    } else {
-      projectData = {
-        ...baseData,
-        description,
-      };
-    }
-    const codestorageUrl = await cloneRepository(projectData, (req as any).user?.accessToken);
-    const projectDoc = new Project({ ...projectData, codestorageUrl });
-    await projectDoc.save();
-    res.status(201).send({
-      success: true,
-      message: "Project created successfully",
-      project: projectDoc,
-    });
+    const url = await cloneRepository((projectData as any), (req as any).user?.accessToken);
+    const doc = await new Project({ ...projectData, codestorageUrl: url }).save();
+    res.status(201).send({ success: true, message: "Project created successfully", project: doc });
   }
 
   static async getAllProjects(req: Request, res: Response) {
-    const userId = (req as any).user?.id || (req as any).user?._id;
-    const projects = await Project.find({
-      ownerId: { $exists: true, $ne: null, $eq: userId },
-    }).sort({ createdAt: -1 });
+    const uid = (req as any).user?.id || (req as any).user?._id;
+    const projects = await Project.find({ ownerId: uid }).sort({ createdAt: -1 });
     res.status(200).send({ success: true, projects });
   }
 
@@ -90,10 +72,10 @@ export class ProjectController {
   }
 
   static async updateBranch(req: Request, res: Response) {
-    const userId = (req as any).user?.id || (req as any).user?._id;
-    const { id, selected_branch } = req.body;
+    const uid = (req as any).user?.id || (req as any).user?._id;
+    const { id: projId, selected_branch } = req.body;
     const project = await Project.findOneAndUpdate(
-      { _id: id, ownerId: userId },
+      { _id: projId, ownerId: uid },
       { selected_branch },
       { new: true }
     );
@@ -101,25 +83,37 @@ export class ProjectController {
   }
 
   static async updateDetails(req: Request, res: Response) {
-    const userId = (req as any).user?.id || (req as any).user?._id;
-    const { id, name, description, logo_url } = req.body;
-    const updateFields: any = {};
-    if (name !== undefined) updateFields.name = name;
-    if (description !== undefined) updateFields.description = description;
-    if (logo_url !== undefined) updateFields.logo_url = logo_url;
-    const project = await Project.findOneAndUpdate({ _id: id, ownerId: userId }, updateFields, {
+    const uid = (req as any).user?.id || (req as any).user?._id;
+    const { id, name, description, logo_url, command } = req.body;
+    const fields = Object.fromEntries(
+      Object.entries({ name, description, logo_url, command }).filter(([_, v]) => v !== undefined)
+    );
+    const project = await Project.findOneAndUpdate({ _id: id, ownerId: uid }, fields, {
       new: true,
     });
     res.status(200).send({ success: true, message: "Project details updated", project });
   }
-  static async deleteProject(req:Request, res: Response)
-  {
-    const userId = (req as any).user?.id || (req as any).user?._id;
-    const {projId}= req.body;
-    const projectdeleted = await Project.deleteOne({ _id: projId, ownerId: userId });
-    if(projectdeleted.deletedCount > 0)
-      res.status(200).send({ success: true, message: "Project deleted successfully" });
-    res.status(404).send({ success: false, message: "Project not found or you do not have permission to delete it" });
+  static async deleteProject(req: Request, res: Response) {
+    const uid = (req as any).user?.id || (req as any).user?._id;
+    const { projId } = req.body;
+    const deleted = await Project.deleteOne({ _id: projId, ownerId: uid });
+    res.status(deleted.deletedCount > 0 ? 200 : 404).send({
+      success: deleted.deletedCount > 0,
+      message:
+        deleted.deletedCount > 0
+          ? "Project deleted successfully"
+          : "Project not found or unauthorized",
+    });
+  }
+
+  static async fetchProjectFilesById(req: Request, res: Response) {
+    const { id } = req.params;
+    const project = await Project.findById(id);
+    if (!project) return res.status(404).send({ success: false, message: "Project not found" });
+
+    const localPath = await fetchProjectFilesFromFilebase(project, "fetched_active_projects");
+    res
+      .status(200)
+      .send({ success: true, message: "Project files fetched successfully", localPath, project });
   }
 }
-

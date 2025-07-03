@@ -23,7 +23,7 @@ export interface UserInterface extends Document {
   updatedAt: Date;
   accessToken?: string;
   refreshToken?: string;
-  password?: string; 
+  password?: string;
 }
 
 const UserSchema = new Schema(

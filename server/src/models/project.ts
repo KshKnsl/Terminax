@@ -1,5 +1,4 @@
 import mongoose, { Document, Schema } from "mongoose";
-
 export interface ProjectInterface extends Document {
   name: string;
   repoid?: string;
@@ -16,8 +15,9 @@ export interface ProjectInterface extends Document {
   createdAt: Date;
   updatedAt: Date;
   ownerId: string;
-  template: string;
+  template?: string;
   codestorageUrl?: string;
+  command: string;
 }
 
 const ProjectSchema = new Schema(
@@ -79,6 +79,9 @@ const ProjectSchema = new Schema(
       required: true,
     },
     template: {
+      type: String,
+    },
+    command: {
       type: String,
       required: true,
     },

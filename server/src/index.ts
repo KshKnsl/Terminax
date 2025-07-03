@@ -16,7 +16,7 @@ dotenv.config();
 mongoose
   .connect(process.env.MONGODB_URI || "mongodb://localhost:27017/terminaux")
   .then(() => console.info("Connected to MongoDB"))
-  .catch((err) => console.error(`MongoDB connection error: ${err}`));
+  .catch((err) => console.error(`MongoDB error: ${err}`));
 
 const app = express();
 
@@ -34,13 +34,13 @@ app.use(morgan("dev"));
 
 app.use(
   session({
-    secret: process.env.SESSION_SECRET || "default_secret_key",
+    secret: process.env.SESSION_SECRET!,
     resave: false,
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
       sameSite: "lax",
-      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+      maxAge: 24 * 60 * 60 * 1000,
     },
   })
 );
@@ -65,7 +65,7 @@ app.use("/users", userRoutes);
 app.use("/github", gitRoutes);
 app.use("/project", projectRoutes);
 app.use("/util", utilRoutes);
-app.get("/", (req, res) => {
+app.get("/", (_req, res) => {
   res.status(200).json({ message: "Terminax API server" });
 });
 
