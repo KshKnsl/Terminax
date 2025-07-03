@@ -112,5 +112,14 @@ export class ProjectController {
     });
     res.status(200).send({ success: true, message: "Project details updated", project });
   }
+  static async deleteProject(req:Request, res: Response)
+  {
+    const userId = (req as any).user?.id || (req as any).user?._id;
+    const {projId}= req.body;
+    const projectdeleted = await Project.deleteOne({ _id: projId, ownerId: userId });
+    if(projectdeleted.deletedCount > 0)
+      res.status(200).send({ success: true, message: "Project deleted successfully" });
+    res.status(404).send({ success: false, message: "Project not found or you do not have permission to delete it" });
+  }
 }
 

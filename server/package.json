@@ -16,15 +16,15 @@
   "license": "ISC",
   "packageManager": "pnpm@10.9.0",
   "dependencies": {
-    "@types/bcryptjs": "^3.0.0",
-    "@types/morgan": "^1.9.10",
-    "bcrypt": "^6.0.0",
+    "@aws-sdk/client-s3": "^3.842.0",
+    "@aws-sdk/lib-storage": "^3.842.0",
     "bcryptjs": "^3.0.2",
     "cloudinary": "^2.7.0",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
     "express-session": "^1.18.1",
+    "fs-extra": "^11.3.0",
     "mongoose": "^8.16.0",
     "morgan": "^1.10.0",
     "multer": "^2.0.1",
@@ -37,6 +37,7 @@
     "simple-git": "^3.28.0"
   },
   "devDependencies": {
+    "@types/morgan": "^1.9.10",
     "@types/axios": "^0.14.4",
     "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
