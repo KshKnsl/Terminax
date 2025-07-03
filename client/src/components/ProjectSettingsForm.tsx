@@ -50,6 +50,7 @@ const ProjectSettingsForm: React.FC<ProjectSettingsFormProps> = ({ project, onPr
   const [saving, setSaving] = React.useState(false);
   const [error, setError] = React.useState("");
   const [success, setSuccess] = React.useState("");
+  const [deleting, setDeleting] = React.useState(false);
 
   const isTemplateProject = !project.repoid && !project.repo_url;
 
@@ -151,25 +152,43 @@ const ProjectSettingsForm: React.FC<ProjectSettingsFormProps> = ({ project, onPr
     setSaving(true);
     setError("");
     setSuccess("");
-    try {
-      const res = await fetch(`${SERVER_URL}/project/updateBranch`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ id: project._id, selected_branch: selectedBranch }),
-      });
-      const data = await res.json();
-      if (data.success && data.project) {
-        setSuccess("Branch updated.");
-        onProjectUpdate(data.project);
-      } else {
-        setError(data.error || "Failed to update branch");
-      }
-    } catch (err) {
-      setError("Failed to update branch");
-    } finally {
-      setSaving(false);
+    const res = await fetch(`${SERVER_URL}/project/updateBranch`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ id: project._id, selected_branch: selectedBranch }),
+    });
+    const data = await res.json();
+    if (data.success && data.project) {
+      setSuccess("Branch updated.");
+      onProjectUpdate(data.project);
+    } else {
+      setError(data.error || "Failed to update branch");
     }
+    setSaving(false);
+  };
+
+  const handleDelete = async () => {
+    if (!window.confirm("Are you sure you want to delete this project? This action cannot be undone.")) return;
+    setDeleting(true);
+    setError("");
+    setSuccess("");
+    const res = await fetch(`${SERVER_URL}/project/delete`, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ projId: project._id }),
+    });
+    const data = await res.json();
+    if (data.success) {
+      setSuccess("Project deleted successfully.");
+      setTimeout(() => {
+        window.location.href = "/dashboard";
+      }, 1200);
+    } else {
+      setError(data.message || "Failed to delete project");
+    }
+    setDeleting(false);
   };
 
   return (
@@ -367,6 +386,18 @@ const ProjectSettingsForm: React.FC<ProjectSettingsFormProps> = ({ project, onPr
           </div>
         </div>
       )}
+      {/* Delete Project Button */}
+      <div className="flex justify-end pt-4">
+        <Button
+          type="button"
+          variant="destructive"
+          className="bg-red-600 hover:bg-red-700 text-white"
+          disabled={deleting}
+          onClick={handleDelete}
+        >
+          {deleting ? "Deleting..." : "Delete Project"}
+        </Button>
+      </div>
     </div>
   );
 };
