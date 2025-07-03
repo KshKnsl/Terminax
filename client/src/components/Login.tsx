@@ -127,14 +127,14 @@ const Login = () => {
         <div className="text-xs text-center mt-2">
           {isRegister ? (
             <>
-              Already have an account?{" "}
+              Already have an account?
               <button type="button" className="underline" onClick={() => setIsRegister(false)}>
                 Login
               </button>
             </>
           ) : (
             <>
-              New here?{" "}
+              New here?
               <button type="button" className="underline" onClick={() => setIsRegister(true)}>
                 Register
               </button>

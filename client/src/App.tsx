@@ -42,13 +42,13 @@ const App = () => {
 
   return (
     <div className="min-h-screen bg-white dark:bg-black text-gray-900 dark:text-gray-200 font-mono">
-      <div className="bg-white dark:bg-black border-b border-gray-200 dark:border-gray-700 px-4 py-2 flex items-center justify-between shadow-sm dark:shadow-none">
-        <div className="flex items-center space-x-2">
+      <div className="bg-white dark:bg-black border-b border-gray-200 dark:border-gray-700 px-4 py-2 flex items-center shadow-sm dark:shadow-none">
+        <div className="flex items-center space-x-2 flex-1">
           <div className="w-3 h-3 bg-purple-500 rounded-full"></div>
           <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
           <div className="w-3 h-3 bg-green-500 rounded-full"></div>
         </div>
-        <div>
+        <div className="absolute left-1/2 transform -translate-x-1/2">
           <button className="flex items-center" onClick={() => navigate("/")}>
             <img src={terminaxLogo} alt="Terminax Logo" className="h-6 w-6 rounded-md shadow-md" />
             <span className="text-gray-600 dark:text-gray-400 text-sm ml-2 font-semibold">
@@ -56,7 +56,7 @@ const App = () => {
             </span>
           </button>
         </div>
-        <div className="flex items-center">
+        <div className="flex items-center flex-1 justify-end">
           {isLoading ? (
             <div>
               <Button
@@ -186,16 +186,14 @@ const App = () => {
         />
         <Route
           path="/project/:id"
-          element={isAuthenticated ? <Project /> : <Navigate to="/" replace />}
+          element={<Project />}
+          // element={isAuthenticated ? <Project /> : <Navigate to="/" replace />}
         />
         <Route
           path="/project/info/:id"
           element={isAuthenticated ? <ProjectDashboard /> : <Navigate to="/" replace />}
         />
-        <Route
-          path="/:deploymentId"
-          element={<DeploymentPage /> }
-        />
+        <Route path="/:deploymentId" element={<DeploymentPage />} />
       </Routes>
     </div>
   );

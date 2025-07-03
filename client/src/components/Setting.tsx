@@ -220,7 +220,7 @@ const Setting = () => {
                         Active
                       </span>
                       <span className="ml-2 text-xs text-gray-500 dark:text-gray-400">
-                        GitHub ID:{" "}
+                        GitHub ID:
                         <span className="font-mono text-gray-700 dark:text-gray-200">
                           {user.githubId}
                         </span>

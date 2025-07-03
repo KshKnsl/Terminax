@@ -57,10 +57,10 @@ const DeleteAccount = ({ children }: { children: React.ReactNode }) => {
           </DialogTitle>
           <DialogDescription className="text-gray-600 dark:text-gray-300">
             This action is <span className="font-semibold">irreversible</span>. All your data will
-            be permanently deleted. Please type{" "}
+            be permanently deleted. Please type
             <span className="text-red-600 dark:text-red-400 font-bold font-mono">
               delete my account
-            </span>{" "}
+            </span>
             to confirm.
           </DialogDescription>
         </DialogHeader>

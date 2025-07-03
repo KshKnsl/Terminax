@@ -20,25 +20,27 @@ const bucket = process.env.FILEBASE_BUCKET_NAME;
 export async function fetchProjectFilesFromFilebase(
   project: ProjectInterface,
   destFolder: string = "fetched_active_projects"
-): Promise<string> {
+): Promise<{ local: string; patharray: string[] }> {
   const key = `${project.ownerId}/${project.name}/`;
   const local = path.join(__dirname, `../../${destFolder}/${project.name}`);
   if (!fs.existsSync(local)) fs.mkdirSync(local, { recursive: true });
 
   const list = await s3.send(new ListObjectsV2Command({ Bucket: bucket, Prefix: key }));
   console.log(`Listing objects in bucket ${bucket} with prefix ${key}`);
-  console.log(`Found ${list}`);
-  if (!list.Contents) return local;
 
+  console.log(`Found ${JSON.stringify(list)}`);
+  if (!list.Contents) return {local, patharray: []};
+  let patharray: string[] = [];
   for (const obj of list.Contents) {
     if (!obj.Key || obj.Key.endsWith("/")) continue;
     const rel = obj.Key.substring(key.length);
     const path1 = path.join(local, rel);
     const dir = path.dirname(path1);
     if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    patharray.push(obj.Key.substring(key.indexOf("/") + 1));
     const get = await s3.send(new GetObjectCommand({ Bucket: bucket, Key: obj.Key }));
     const pipe = promisify(stream.pipeline);
     await pipe(get.Body as NodeJS.ReadableStream, fs.createWriteStream(path1));
   }
-  return local;
+  return {local, patharray: patharray};
 }

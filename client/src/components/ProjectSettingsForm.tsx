@@ -223,7 +223,7 @@ const ProjectSettingsForm: React.FC<ProjectSettingsFormProps> = ({ project, onPr
               </span>
               {project.codestorageUrl && (
                 <div className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                  Code Storage:{" "}
+                  Code Storage:
                   <a
                     href={project.codestorageUrl}
                     className="underline"
@@ -304,14 +304,16 @@ const ProjectSettingsForm: React.FC<ProjectSettingsFormProps> = ({ project, onPr
                 />
               </div>
               <div>
-                <label htmlFor="command" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                <label
+                  htmlFor="command"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Run Command
                 </label>
                 <Input
                   id="command"
                   type="text"
                   value={command}
-                  onChange={e => setCommand(e.target.value)}
+                  onChange={(e) => setCommand(e.target.value)}
                   className="mt-1 block w-full bg-gray-50 dark:bg-black border-gray-200 dark:border-gray-700 focus:border-purple-500 focus:ring-purple-500"
                   placeholder="e.g. npm start, python main.py, etc."
                   disabled={saving}
@@ -435,10 +437,10 @@ const ProjectSettingsForm: React.FC<ProjectSettingsFormProps> = ({ project, onPr
               </DialogTitle>
               <DialogDescription className="text-gray-600 dark:text-gray-300">
                 This action is <span className="font-semibold">irreversible</span>. All project data
-                will be permanently deleted. Please type{" "}
+                will be permanently deleted. Please type
                 <span className="text-red-600 dark:text-red-400 font-bold font-mono">
                   delete my project
-                </span>{" "}
+                </span>
                 to confirm.
               </DialogDescription>
             </DialogHeader>

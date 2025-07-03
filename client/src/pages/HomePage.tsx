@@ -94,11 +94,13 @@ export default function HomePage() {
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight">
               <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-pink-600 dark:from-purple-400 dark:to-pink-400">
                 Instant Online Coding
-              </span>{" "}
+              </span>
               <span className="text-gray-900 dark:text-white">for CLI Projects</span>
             </h1>
             <p className="max-w-2xl mx-auto mt-6 text-lg text-gray-600 dark:text-gray-300 leading-relaxed">
-              <span className="font-semibold text-gray-900 dark:text-white">Terminax</span> is a collaborative online coding platform. Instantly run code, share live terminals, and collaborate in real time—no setup required. Supports C++, Java, Python, and more.
+              <span className="font-semibold text-gray-900 dark:text-white">Terminax</span> is a
+              collaborative online coding platform. Instantly run code, share live terminals, and
+              collaborate in real time—no setup required. Supports C++, Java, Python, and more.
             </p>
             <div className="relative bg-gray-100/80 dark:bg-[#0A0A0A]/90 backdrop-blur-sm border border-gray-200 dark:border-gray-700 rounded-lg p-4 max-w-2xl mx-auto mt-8 shadow-lg group">
               <div className="absolute -top-3 left-4 px-2 py-1 bg-purple-600 dark:bg-purple-500 text-white text-xs rounded-full font-mono">
@@ -172,7 +174,8 @@ export default function HomePage() {
                 Collaborative Coding
               </h3>
               <p className="text-gray-600 dark:text-gray-300">
-                Share your workspace and code together in real time. Great for teams, interviews, and learning.
+                Share your workspace and code together in real time. Great for teams, interviews,
+                and learning.
               </p>
             </div>
             <div className="bg-white dark:bg-[#0A0A0A] p-6 rounded-lg border border-gray-200 dark:border-gray-700">
@@ -208,8 +211,7 @@ export default function HomePage() {
               <div className="bg-gray-100 dark:bg-black p-3 sm:p-4 rounded-md border border-gray-200 dark:border-gray-700 overflow-x-auto">
                 <pre className="text-sm sm:text-base">
                   <code className="font-mono whitespace-pre-wrap break-all sm:break-normal">
-                    // Invite a friend to code together
-                    // Share your workspace link
+                    // Invite a friend to code together // Share your workspace link
                   </code>
                 </pre>
                 <pre className="mt-2 text-sm">
@@ -325,7 +327,7 @@ export default function HomePage() {
 
         <div className="text-center text-gray-600 dark:text-gray-300 py-8">
           <p>
-            Feedback and feature requests:{" "}
+            Feedback and feature requests:
             <a href="mailto:kushkansal0@gmail.com">support@terminax.io</a>
           </p>
         </div>

@@ -216,7 +216,7 @@ const ProjectDashboard = () => {
               )}
               {project.selected_branch && (
                 <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                  Branch:{" "}
+                  Branch:
                   <span className="font-medium text-purple-500">{project.selected_branch}</span>
                 </div>
               )}
@@ -293,7 +293,7 @@ const ProjectDashboard = () => {
                         Total commits: <span className="font-semibold">{commitsData.length}</span>
                       </div>
                       <div>
-                        Unique authors:{" "}
+                        Unique authors:
                         <span className="font-semibold">
                           {
                             Array.from(
@@ -307,7 +307,7 @@ const ProjectDashboard = () => {
                         </span>
                       </div>
                       <div>
-                        Latest commit:{" "}
+                        Latest commit:
                         <span className="font-semibold">
                           {new Date(
                             commitsData[0].commit?.author?.date ||
