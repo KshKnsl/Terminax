@@ -1,15 +1,56 @@
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import Loading from "../components/ui/Loading";
 import FileTreeArea from "../components/FileTreeArea";
-
-const SERVER_URL = import.meta.env.VITE_SERVER_URL || "http://localhost:3000";
+import CodeArea from "../components/CodeArea";
+import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "../components/ui/resizable";
+import { Button } from "../components/ui/button";
 
 const Project = () => {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const [filesData, setFilesData] = useState<any>(null);
   const [initialLoading, setInitialLoading] = useState(true);
   const [error, setError] = useState<string>("");
+  const [openFiles, setOpenFiles] = useState<string[]>([]);
+  const [activeFile, setActiveFile] = useState<string | null>(null);
+
+  const handleFileOpen = (filePath: string) => {
+    if (!openFiles.includes(filePath)) {
+      setOpenFiles((prev) => [...prev, filePath]);
+    }
+    setActiveFile(filePath);
+  };
+
+  const handleFileClose = (filePath: string) => {
+    setOpenFiles((prev) => {
+      const newOpenFiles = prev.filter((f) => f !== filePath);
+      if (activeFile === filePath && newOpenFiles.length > 0) {
+        setActiveFile(newOpenFiles[newOpenFiles.length - 1]);
+      } else if (activeFile === filePath) {
+        setActiveFile(null);
+      }
+      return newOpenFiles;
+    });
+  };
+
+  const handleFileSelect = (filePath: string) => {
+    if (openFiles.includes(filePath)) {
+      setActiveFile(filePath);
+    } else {
+      if (openFiles.length === 0) {
+        setOpenFiles([filePath]);
+      } else {
+        setOpenFiles((prev) => {
+          const newFiles = [...prev];
+          const activeIndex = activeFile ? newFiles.indexOf(activeFile) : 0;
+          newFiles[activeIndex] = filePath;
+          return newFiles;
+        });
+      }
+      setActiveFile(filePath);
+    }
+  };
 
   const fetchProjectFiles = async () => {
     if (!id) return;
@@ -140,28 +181,57 @@ const Project = () => {
   }
 
   return (
-    <div className="p-6 max-w-6xl mx-auto">
-      <h1 className="text-2xl font-bold mb-6">Project Page</h1>
-
+    <div className="h-full flex flex-col">
       {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+        <div className="bg-destructive/15 text-destructive px-3 py-1 rounded-md text-sm">
           {error}
         </div>
       )}
 
-      <div className="max-w-4xl mx-auto">
-        {/* Files Data */}
-        <div>
-          <h2 className="text-xl font-semibold mb-3">Project Files (/getAllFiles)</h2>
-          <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg overflow-auto max-h-96">
-            <pre className="text-sm whitespace-pre-wrap">
-              {filesData ? JSON.stringify(filesData, null, 2) : "Loading project files..."}
-            </pre>
-          </div>
-        </div>
-        {filesData && filesData.localPath && filesData.localPath.patharray && (
-          <FileTreeArea patharray={filesData.localPath.patharray} />
-        )}
+      <div className="flex-1 overflow-hidden bg-black dark:bg-[#0A0A0A]">
+        <ResizablePanelGroup direction="horizontal" className="h-full">
+          <ResizablePanel defaultSize={25} minSize={15} maxSize={50}>
+            <div className="h-full bg-black dark:bg-[#0A0A0A] border-r border-[#3c3c3c] dark:border-[#30363d] flex flex-col">
+              <div className="p-3 border-b border-[#3c3c3c] dark:border-[#30363d] bg-[#171717] dark:bg-[#0A0A0A] flex items-center justify-between">
+                <h3 className="text-sm font-semibold text-[#cccccc] dark:text-[#e6edf3] uppercase tracking-wide">
+                  Explorer
+                </h3>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => navigate(`/project/info/${id}`)}
+                  className="text-xs text-[#969696] hover:text-[#cccccc] dark:text-[#7d8590] dark:hover:text-[#e6edf3] hover:bg-[#2a2a2a] dark:hover:bg-[#21262d] px-2 py-1 h-6"
+                >
+                  View Details
+                </Button>
+              </div>
+              <div className="flex-1">
+                {filesData && filesData.localPath && filesData.localPath.patharray ? (
+                  <FileTreeArea
+                    patharray={filesData.localPath.patharray}
+                    onFileOpen={handleFileOpen}
+                    onFileSelect={handleFileSelect}
+                  />
+                ) : (
+                  <div className="p-4 text-[#969696] dark:text-[#7d8590]">No files available</div>
+                )}
+              </div>
+            </div>
+          </ResizablePanel>
+
+          <ResizableHandle withHandle />
+
+          <ResizablePanel defaultSize={75} minSize={50}>
+            <div className="h-full bg-[#171717] dark:bg-black">
+              <CodeArea
+                openFiles={openFiles}
+                activeFile={activeFile}
+                onFileSelect={handleFileSelect}
+                onFileClose={handleFileClose}
+              />
+            </div>
+          </ResizablePanel>
+        </ResizablePanelGroup>
       </div>
     </div>
   );

@@ -3,6 +3,7 @@ import { Terminal, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
+import Loading from "@/components/ui/Loading";
 
 const SERVER_URL = import.meta.env.VITE_SERVER_URL || "http://localhost:3000";
 
@@ -206,8 +207,8 @@ const GithubRepoSelector: React.FC<GithubRepoSelectorProps> = ({ onSelect }) => 
           />
 
           {loading ? (
-            <div className="flex items-center justify-center p-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+            <div className="p-4">
+              <Loading />
             </div>
           ) : error ? (
             <div className="p-4 text-red-500 bg-red-50 dark:bg-red-900/20 rounded-lg">

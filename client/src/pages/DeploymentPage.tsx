@@ -1,11 +1,13 @@
-import React from 'react'
 import { useParams } from 'react-router-dom'
 
 const DeploymentPage = () => {
     const { deploymentId } = useParams<{ deploymentId: string }>()
 
     return (
-        <div>Deployment ID: {deploymentId}</div>
+        <div className="p-8">
+            <h1 className="text-2xl font-bold mb-4">Deployment Page</h1>
+            <p>Deployment ID: {deploymentId}</p>
+        </div>
     )
 }
 

@@ -51,9 +51,9 @@ export default function HomePage() {
   ];
 
   return (
-    <div className="mx-auto space-y-16">
+    <div>
       <div className="text-center">
-        <div className="relative flex h-[650px] w-full flex-col items-center justify-center overflow-hidden">
+        <div className="relative flex h-screen w-full flex-col items-center justify-center overflow-hidden">
           <DotPattern
             width={36}
             height={24}
@@ -145,8 +145,10 @@ export default function HomePage() {
         </div>
       </div>
 
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="border-t border-dotted border-gray-200 dark:border-gray-700 mb-16"></div>
+      {/* Features and other sections */}
+      <div className="space-y-16">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="border-t border-dotted border-gray-200 dark:border-gray-700 mb-16"></div>
 
         <div id="features" className="space-y-8 py-4">
           <h2 className="text-3xl font-bold text-center">
@@ -332,6 +334,7 @@ export default function HomePage() {
           </p>
         </div>
       </div>
+    </div>
     </div>
   );
 }

@@ -8,6 +8,7 @@ import {
 import { Plus, Terminal, Settings, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DotPattern } from "@/components/ui/dot-pattern";
+import Loading from "@/components/ui/Loading";
 import GithubRepoSelector from "@/components/GithubRepoSelector";
 import NewProjectForm from "@/components/NewProjectForm";
 import Setting from "@/components/Setting";
@@ -165,7 +166,9 @@ export default function Dashboard() {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {loadingApps ? (
-                  <div className="col-span-full text-center text-gray-400">Loading...</div>
+                  <div className="col-span-full">
+                    <Loading />
+                  </div>
                 ) : applications.length === 0 ? (
                   <div className="col-span-full text-center text-gray-400">
                     No applications found.
@@ -199,7 +202,7 @@ export default function Dashboard() {
                               </span>
                             )}
                             {app.template && (
-                              <span className="ml-2 inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-200">
+                              <span className="ml-2 inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700 dark:bg-[#0A0A0A] dark:text-gray-200">
                                 {app.template}
                               </span>
                             )}
@@ -209,12 +212,11 @@ export default function Dashboard() {
                           size="icon"
                           variant="ghost"
                           className="ml-2 text-gray-400 hover:text-purple-600 dark:hover:text-purple-400"
-                          onClick={e => {
+                          onClick={(e) => {
                             e.stopPropagation();
                             navigate(`/project/info/${app._id}`);
                           }}
-                          aria-label="Project Settings"
-                        >
+                          aria-label="Project Settings">
                           <Info className="w-5 h-5" /> {"&"}
                           <Settings className="w-5 h-5" />
                         </Button>

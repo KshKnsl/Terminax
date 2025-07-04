@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { LogIn, LogOut, User as UserIcon, LifeBuoy, Trash2 } from "lucide-react";
 import terminaxLogo from "@/assets/terminax-logo.png";
+import Loading from "@/components/ui/Loading";
 import {
   Dialog,
   DialogContent,
@@ -33,15 +34,11 @@ const App = () => {
   const location = useLocation();
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen bg-white dark:bg-black text-gray-900 dark:text-gray-300 font-mono flex justify-center items-center">
-        Loading...
-      </div>
-    );
+    return <Loading />;
   }
 
   return (
-    <div className="min-h-screen bg-white dark:bg-black text-gray-900 dark:text-gray-200 font-mono">
+    <div className="h-screen bg-white dark:bg-black text-gray-900 dark:text-gray-200 font-mono flex flex-col">
       <div className="bg-white dark:bg-black border-b border-gray-200 dark:border-gray-700 px-4 py-2 flex items-center shadow-sm dark:shadow-none">
         <div className="flex items-center space-x-2 flex-1">
           <div className="w-3 h-3 bg-purple-500 rounded-full"></div>
@@ -178,23 +175,25 @@ const App = () => {
           )}
         </div>
       </div>
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route
-          path="/dashboard"
-          element={isAuthenticated ? <Dashboard /> : <Navigate to="/" replace />}
-        />
-        <Route
-          path="/project/:id"
-          element={<Project />}
-          // element={isAuthenticated ? <Project /> : <Navigate to="/" replace />}
-        />
-        <Route
-          path="/project/info/:id"
-          element={isAuthenticated ? <ProjectDashboard /> : <Navigate to="/" replace />}
-        />
-        <Route path="/:deploymentId" element={<DeploymentPage />} />
-      </Routes>
+      <div className="flex-1 overflow-auto">
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route
+            path="/dashboard"
+            element={isAuthenticated ? <Dashboard /> : <Navigate to="/" replace />}
+          />
+          <Route
+            path="/project/:id"
+            element={<Project />}
+            // element={isAuthenticated ? <Project /> : <Navigate to="/" replace />}
+          />
+          <Route
+            path="/project/info/:id"
+            element={isAuthenticated ? <ProjectDashboard /> : <Navigate to="/" replace />}
+          />
+          <Route path="/:deploymentId" element={<DeploymentPage />} />
+        </Routes>
+      </div>
     </div>
   );
 };

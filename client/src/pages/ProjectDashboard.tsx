@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Loader2, ArrowLeft, GitCommit } from "lucide-react";
+import Loading from "@/components/ui/Loading";
 import {
   Dialog,
   DialogContent,
@@ -146,12 +147,7 @@ const ProjectDashboard = () => {
   }, [project?.languages_url]);
 
   if (loading) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] text-gray-500">
-        <Loader2 className="w-8 h-8 animate-spin mb-2" />
-        Loading project...
-      </div>
-    );
+    return <Loading />;
   }
 
   if (error || !project) {
@@ -235,7 +231,7 @@ const ProjectDashboard = () => {
             </p>
             <div className="mt-4">
               <span className="font-semibold text-gray-800 dark:text-gray-100">Run Command:</span>
-              <span className="ml-2 font-mono text-xs bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
+              <span className="ml-2 font-mono text-xs bg-gray-100 dark:bg-[#0A0A0A] px-2 py-1 rounded">
                 {project.command}
               </span>
             </div>
@@ -275,7 +271,7 @@ const ProjectDashboard = () => {
                           <DialogTitle>Commits Data</DialogTitle>
                         </DialogHeader>
                         {commitsLoading ? (
-                          <div className="text-center text-gray-400">Loading...</div>
+                          <Loading />
                         ) : commitsError ? (
                           <div className="text-center text-red-500">{commitsError}</div>
                         ) : (
@@ -372,7 +368,9 @@ const ProjectDashboard = () => {
                   <div className="w-full max-w-md mx-auto">
                     <h2 className="text-lg font-semibold mb-2">Languages</h2>
                     {languagesLoading ? (
-                      <div className="text-xs text-gray-400">Loading languages...</div>
+                      <div className="flex justify-center items-center h-32">
+                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-purple-600"></div>
+                      </div>
                     ) : languagesError ? (
                       <div className="text-xs text-red-500">{languagesError}</div>
                     ) : (

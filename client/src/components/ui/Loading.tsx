@@ -1,6 +1,6 @@
 const Loading = () => {
   return (
-    <div className="fixed inset-0 bg-white dark:bg-gray-900 flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-white dark:bg-black flex items-center justify-center z-50">
       <div className="flex flex-col items-center justify-center text-center transform-translate-y-1/4">
         <svg width="60" height="60" viewBox="0 0 50 50">
           <g fill="none" stroke="#8B5CF6" strokeWidth="2">
@@ -21,7 +21,7 @@ const Loading = () => {
             </circle>
           </g>
         </svg>
-        <p className="mt-4 text-purple-600 dark:text-purple-400 font-medium">Loading project...</p>
+        <p className="mt-4 text-purple-600 dark:text-purple-400 font-medium">Loading...</p>
       </div>
     </div>
   );
