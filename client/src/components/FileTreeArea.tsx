@@ -94,9 +94,9 @@ const FileTreeArea = ({ patharray, onFileOpen, onFileSelect }: FileTreeAreaProps
   return (
     <div className="h-full flex flex-col bg-black dark:bg-[#0A0A0A]">
       {/* File Tree */}
-      <div className="flex-1 overflow-auto p-1">
+      <div className="flex-1 min-h-0">
         <Tree
-          className="w-full"
+          className="w-full h-full"
           initialExpandedItems={Array.from(expandedFolders)}
           key={Array.from(expandedFolders).join(",")}>
           <RecurComponent

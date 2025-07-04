@@ -368,9 +368,7 @@ const ProjectDashboard = () => {
                   <div className="w-full max-w-md mx-auto">
                     <h2 className="text-lg font-semibold mb-2">Languages</h2>
                     {languagesLoading ? (
-                      <div className="flex justify-center items-center h-32">
-                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-purple-600"></div>
-                      </div>
+                      <div className="text-xs text-gray-400">Loading languages...</div>
                     ) : languagesError ? (
                       <div className="text-xs text-red-500">{languagesError}</div>
                     ) : (

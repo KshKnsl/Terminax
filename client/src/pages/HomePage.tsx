@@ -55,13 +55,13 @@ export default function HomePage() {
       <div className="text-center">
         <div className="relative flex h-screen w-full flex-col items-center justify-center overflow-hidden">
           <DotPattern
-            width={36}
-            height={24}
+            width={40}
+            height={40}
             cx={1}
             cy={1}
             cr={1.2}
             glow={true}
-            className={cn("absolute inset-0 w-full h-full dot-pattern")}
+            className={cn("absolute inset-0 w-full h-screen")}
           />
           <MovingGradient
             size={600}

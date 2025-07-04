@@ -22,8 +22,7 @@ async function uploadFolderToFileBase(
   async function walkAndUpload(dir: string, prefix: string) {
     const entries = fs.readdirSync(dir, { withFileTypes: true });
     for (const entry of entries) {
-      if (entry.name.startsWith(".") || prefix.includes("/.git/") || entry.name === ".git")
-        continue;
+      if (entry.name.startsWith(".") || entry.name === ".git" || prefix.includes(".git/")) continue;
       const fullPath = path.join(dir, entry.name);
       const key = `${project.ownerId}/${project.name}/${prefix}${entry.name}`;
       if (entry.isDirectory()) await walkAndUpload(fullPath, `${prefix}${entry.name}/`);
@@ -61,10 +60,7 @@ export async function cloneRepository(
   if (project.repo_url) {
     let url = project.repo_url;
     if (accessToken) {
-      url = url.replace(
-        /^https:\/\/(github\.com)/,
-        `https://${accessToken}:x-oauth-basic@$1`
-      );
+      url = url.replace(/^https:\/\/(github\.com)/, `https://${accessToken}:x-oauth-basic@$1`);
     }
     await git.clone(url, local);
   } else if (project.template) {

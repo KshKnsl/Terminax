@@ -80,7 +80,7 @@ const NewProjectForm: React.FC<NewProjectFormProps> = ({ repository, onBack, onS
     commithistory_url: repository.commitHistory,
     logo_url: repository.avatar_url || "",
     template: "nodejs",
-    command: isBlankProject ? getDefaultCommand("nodejs") : "",
+    command: isBlankProject ? getDefaultCommand("nodejs") : "npm start",
   });
   const [branches, setBranches] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
@@ -130,7 +130,7 @@ const NewProjectForm: React.FC<NewProjectFormProps> = ({ repository, onBack, onS
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!project.name || loading || creating) return;
+    if (!project.name || !project.command || loading || creating) return;
     setCreating(true);
 
     let logoUrl = project.logo_url;
@@ -163,7 +163,7 @@ const NewProjectForm: React.FC<NewProjectFormProps> = ({ repository, onBack, onS
         selected_branch: project.selected_branch,
         commithistory_url: project.commithistory_url,
         template: isBlankProject ? project.template : undefined,
-        command: project.command,
+        command: project.command || "",
       }),
       headers: {
         "Content-Type": "application/json",
@@ -245,15 +245,21 @@ const NewProjectForm: React.FC<NewProjectFormProps> = ({ repository, onBack, onS
             />
           </div>
           <div>
-            <Label htmlFor="command">Command to run project <span className="text-red-500">*</span></Label>
+            <Label htmlFor="command" className="flex items-center gap-1">
+              Command to run project
+              <span className="text-red-500 text-base">*</span>
+            </Label>
             <Input
               id="command"
               value={project.command}
               onChange={(e) => updateField("command", e.target.value)}
-              className="mt-1"
+              className={`mt-1 ${!project.command ? "border-red-300 focus:border-red-500 focus:ring-red-500" : ""}`}
               required
               placeholder="e.g. npm start, python main.py, etc."
             />
+            {!project.command && (
+              <p className="text-red-500 text-xs mt-1">Command is required to run your project</p>
+            )}
           </div>
 
           {isBlankProject && (
@@ -324,7 +330,7 @@ const NewProjectForm: React.FC<NewProjectFormProps> = ({ repository, onBack, onS
         <Button
           type="submit"
           className="bg-purple-600 hover:bg-purple-700 text-white"
-          disabled={loading || !project.name || creating}
+          disabled={loading || !project.name || !project.command || creating}
           onClick={handleSubmit}>
           {creating ? (
             <>
