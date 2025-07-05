@@ -67,7 +67,7 @@ export default function Dashboard() {
     setSelectedRepo(repo);
   };
 
-  const handleProjectSubmit = async () => {
+  const handleProjectSubmit: () => Promise<void> = async () => {
     setIsProjectDialogOpen(false);
     setSelectedRepo(null);
     fetchApplications();

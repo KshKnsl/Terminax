@@ -53,7 +53,7 @@ function RecurComponent({
         <Folder
           element={node.label}
           value={node.id}
-          className="hover:!bg-purple-100 dark:hover:!bg-purple-900/30 transition-all duration-200 rounded-md px-2 py-1">
+          className="hover:!bg-gray-100 dark:hover:!bg-purple-900/30 transition-all duration-200 rounded-md px-2 py-1">
           {node.children &&
             node.children.map((child) => (
               <RecurComponent
@@ -73,8 +73,8 @@ function RecurComponent({
           value={node.id}
           onClick={handleFileClick}
           onContextMenu={handleFileRightClick}
-          className="hover:!bg-purple-100 dark:hover:!bg-purple-900/30 transition-all duration-200 rounded-md px-2 py-1 w-full">
-          <span className="text-sm text-foreground">{node.label}</span>
+          className="hover:!bg-gray-100 dark:hover:!bg-purple-900/30 transition-all duration-200 rounded-md px-2 py-1 w-full">
+          <span className="text-sm text-gray-700 dark:text-[#e6edf3]">{node.label}</span>
         </File>
       )}
     </>
@@ -92,7 +92,7 @@ const FileTreeArea = ({ patharray, onFileOpen, onFileSelect }: FileTreeAreaProps
   });
 
   return (
-    <div className="h-full flex flex-col bg-black dark:bg-[#0A0A0A]">
+    <div className="h-full flex flex-col bg-white dark:bg-[#0A0A0A]">
       {/* File Tree */}
       <div className="flex-1 min-h-0">
         <Tree
