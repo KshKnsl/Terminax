@@ -1,7 +1,7 @@
 # 🚀 Terminax
 
 Terminax is an intelligent deployment platform that enables developers to automatically build, deploy, and run console or GUI-based applications directly in the browser. With support for multiple programming languages and automatic build system detection, Terminax brings your GitHub repositories to life instantly.
-
+ 
 ## ✨ Overview
 
 Transform your GitHub repositories into live, interactive applications without any configuration. Whether it's a CLI tool or a GUI application, Terminax handles the deployment automatically, providing secure access through your browser.
