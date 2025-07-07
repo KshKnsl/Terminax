@@ -6,6 +6,9 @@ import morgan from "morgan";
 import session from "express-session";
 import passport from "passport";
 import path from "path";
+import { createServer } from "http";
+import { Server } from "socket.io";
+import { setupSocketHandlers } from "./sockets";
 import configurePassport from "./config/passport";
 import authRoutes from "./routes/auth";
 import userRoutes from "./routes/user";
@@ -20,6 +23,14 @@ mongoose
   .catch((err) => console.error(`MongoDB error: ${err}`));
 
 const app = express();
+const httpServer = createServer(app);
+
+const io = new Server(httpServer, {
+  cors: {
+    origin: process.env.CLIENT_URL || "http://localhost:5173",
+    credentials: true,
+  },
+});
 
 app.use(
   cors({
@@ -32,8 +43,6 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan("dev"));
- 
-app.use('/fetched_active_projects', express.static(path.join(__dirname, '../fetched_active_projects')));
 
 app.use(
   session({
@@ -62,6 +71,8 @@ app.use((req, res, next) => {
   next();
 });
 
+setupSocketHandlers(io);
+
 app.use("/auth", authRoutes);
 app.use("/user", userRoutes);
 app.use("/users", userRoutes);
@@ -75,7 +86,7 @@ app.get("/", (_req, res) => {
 app.use(express.static(path.join(__dirname, "public")));
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
+httpServer.listen(PORT, () => {
   console.info(`Server running on port ${PORT}`);
 });
 

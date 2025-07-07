@@ -3,42 +3,72 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "./ui/tabs";
 import { X } from "lucide-react";
 import { Button } from "./ui/button";
 import Editor from "@monaco-editor/react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { useSocket } from "../hooks/useSocket";
 
 interface CodeAreaProps {
   openFiles: string[];
   activeFile: string | null;
   onFileSelect: (filePath: string) => void;
   onFileClose: (filePath: string) => void;
+  projectId?: string;
 }
-const SERVER_URL = import.meta.env.VITE_SERVER_URL || "http://localhost:3000";
-
-const CodeArea = ({ openFiles, activeFile, onFileSelect, onFileClose }: CodeAreaProps) => {
+const CodeArea = ({
+  openFiles,
+  activeFile,
+  onFileSelect,
+  onFileClose,
+  projectId,
+}: CodeAreaProps) => {
   const [fileContents, setFileContents] = useState<Record<string, string>>({});
   const [loadingFiles, setLoadingFiles] = useState<Set<string>>(new Set());
+  const [unsavedChanges, setUnsavedChanges] = useState<Set<string>>(new Set());
 
-  const getContent = async (filePath: string): Promise<string> => {
-    const response = await fetch(`${SERVER_URL}/fetched_active_projects/${filePath}`);
-    if (response.ok) {
-      const content = await response.text();
-      return content;
+  const handleFileContent = useCallback((data: { filePath: string; content: string }) => {
+    setFileContents((prev) => ({ ...prev, [data.filePath]: data.content }));
+    setLoadingFiles((prev) => {
+      const newSet = new Set(prev);
+      newSet.delete(data.filePath);
+      return newSet;
+    });
+  }, []);
+
+  const handleFileSaved = useCallback((data: { filePath: string; success: boolean }) => {
+    if (data.success) {
+      setUnsavedChanges((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete(data.filePath);
+        return newSet;
+      });
     }
-    return `// Error loading file: ${filePath}`;
-  };
+  }, []);
 
-  const loadFileContent = async (filePath: string) => {
+  const { requestFileContent, saveFileContent } = useSocket({
+    onFileContent: handleFileContent,
+    onFileSaved: handleFileSaved,
+  });
+
+  const loadFileContent = (filePath: string) => {
     if (fileContents[filePath] || loadingFiles.has(filePath)) {
       return;
     }
 
     setLoadingFiles((prev) => new Set(prev).add(filePath));
-    const content = await getContent(filePath);
-    setFileContents((prev) => ({ ...prev, [filePath]: content }));
-    setLoadingFiles((prev) => {
-      const newSet = new Set(prev);
-      newSet.delete(filePath);
-      return newSet;
-    });
+    requestFileContent(filePath, projectId);
+  };
+
+  const handleEditorChange = (value: string | undefined, filePath: string) => {
+    if (value !== undefined) {
+      setFileContents((prev) => ({ ...prev, [filePath]: value }));
+      setUnsavedChanges((prev) => new Set(prev).add(filePath));
+    }
+  };
+
+  const handleSave = (filePath: string) => {
+    const content = fileContents[filePath];
+    if (content !== undefined) {
+      saveFileContent(filePath, content, projectId);
+    }
   };
 
   useEffect(() => {
@@ -47,7 +77,7 @@ const CodeArea = ({ openFiles, activeFile, onFileSelect, onFileClose }: CodeArea
         loadFileContent(filePath);
       }
     });
-  }, [openFiles]);
+  }, [openFiles, fileContents, loadingFiles]);
 
   if (openFiles.length === 0) {
     return (
@@ -110,6 +140,7 @@ const CodeArea = ({ openFiles, activeFile, onFileSelect, onFileClose }: CodeArea
                   path={filePath}
                   theme="vs-dark"
                   value={fileContents[filePath] || "// Loading..."}
+                  onChange={(value) => handleEditorChange(value, filePath)}
                   options={{
                     minimap: { enabled: false },
                     readOnly: false,
@@ -124,6 +155,11 @@ const CodeArea = ({ openFiles, activeFile, onFileSelect, onFileClose }: CodeArea
                     formatOnPaste: true,
                     formatOnType: true,
                     autoIndent: "full",
+                  }}
+                  onMount={(editor, monaco) => {
+                    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, () => {
+                      handleSave(filePath);
+                    });
                   }}
                 />
               </div>

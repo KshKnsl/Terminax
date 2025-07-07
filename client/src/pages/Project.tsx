@@ -128,6 +128,7 @@ const Project = () => {
                     activeFile={activeFile}
                     onFileSelect={handleFileSelect}
                     onFileClose={handleFileClose}
+                    projectId={id}
                   />
                 </div>
               </ResizablePanel>
