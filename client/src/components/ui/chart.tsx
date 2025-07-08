@@ -102,6 +102,15 @@ ${colorConfig
 
 const ChartTooltip = RechartsPrimitive.Tooltip
 
+type TooltipPayloadItem = {
+  name?: string
+  dataKey?: string
+  value?: any
+  color?: string
+  payload?: Record<string, any>
+  [key: string]: any
+}
+
 function ChartTooltipContent({
   active,
   payload,
@@ -116,13 +125,15 @@ function ChartTooltipContent({
   color,
   nameKey,
   labelKey,
-}: React.ComponentProps<typeof RechartsPrimitive.Tooltip> &
+}: Omit<React.ComponentProps<typeof RechartsPrimitive.Tooltip>, "payload"> &
   React.ComponentProps<"div"> & {
+    payload?: TooltipPayloadItem[]
     hideLabel?: boolean
     hideIndicator?: boolean
     indicator?: "line" | "dot" | "dashed"
     nameKey?: string
     labelKey?: string
+    label?: React.ReactNode
   }) {
   const { config } = useChart()
 
@@ -162,7 +173,7 @@ function ChartTooltipContent({
     labelKey,
   ])
 
-  if (!active || !payload?.length) {
+  if (!active || !Array.isArray(payload) || !payload.length) {
     return null
   }
 
@@ -177,7 +188,7 @@ function ChartTooltipContent({
     >
       {!nestLabel ? tooltipLabel : null}
       <div className="grid gap-1.5">
-        {payload.map((item, index) => {
+        {Array.isArray(payload) && payload.map((item: any, index: number) => {
           const key = `${nameKey || item.name || item.dataKey || "value"}`
           const itemConfig = getPayloadConfigFromPayload(config, item, key)
           const indicatorColor = color || item.payload.fill || item.color
@@ -254,15 +265,16 @@ function ChartLegendContent({
   payload,
   verticalAlign = "bottom",
   nameKey,
-}: React.ComponentProps<"div"> &
-  Pick<RechartsPrimitive.LegendProps, "payload" | "verticalAlign"> & {
+}: React.ComponentProps<"div"> & {
+    payload?: any[]
+    verticalAlign?: "top" | "bottom" | "middle";
     hideIcon?: boolean
     nameKey?: string
   }) {
   const { config } = useChart()
 
-  if (!payload?.length) {
-    return null
+  if (!Array.isArray(payload) || !payload.length) {
+    return null;
   }
 
   return (
@@ -273,10 +285,9 @@ function ChartLegendContent({
         className
       )}
     >
-      {payload.map((item) => {
-        const key = `${nameKey || item.dataKey || "value"}`
-        const itemConfig = getPayloadConfigFromPayload(config, item, key)
-
+      {payload.map((item: any) => {
+        const key = `${nameKey || item.dataKey || "value"}`;
+        const itemConfig = getPayloadConfigFromPayload(config, item, key);
         return (
           <div
             key={item.value}
@@ -296,10 +307,10 @@ function ChartLegendContent({
             )}
             {itemConfig?.label}
           </div>
-        )
+        );
       })}
     </div>
-  )
+  );
 }
 
 // Helper to extract item config from a payload.

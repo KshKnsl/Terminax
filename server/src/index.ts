@@ -83,7 +83,13 @@ app.get("/", (_req, res) => {
   res.status(200).json({ message: "Terminax API server" });
 });
 
+
 app.use(express.static(path.join(__dirname, "public")));
+
+app.get("*", (req, res) => {
+  const indexPath = path.join(__dirname, "public", "index.html");
+  res.sendFile(indexPath);
+});
 
 const PORT = process.env.PORT || 3000;
 httpServer.listen(PORT, () => {

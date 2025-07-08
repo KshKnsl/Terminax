@@ -22,8 +22,7 @@ const CodeArea = ({
 }: CodeAreaProps) => {
   const [fileContents, setFileContents] = useState<Record<string, string>>({});
   const [loadingFiles, setLoadingFiles] = useState<Set<string>>(new Set());
-  const [unsavedChanges, setUnsavedChanges] = useState<Set<string>>(new Set());
-
+  
   const handleFileContent = useCallback((data: { filePath: string; content: string }) => {
     setFileContents((prev) => ({ ...prev, [data.filePath]: data.content }));
     setLoadingFiles((prev) => {
@@ -33,15 +32,7 @@ const CodeArea = ({
     });
   }, []);
 
-  const handleFileSaved = useCallback((data: { filePath: string; success: boolean }) => {
-    if (data.success) {
-      setUnsavedChanges((prev) => {
-        const newSet = new Set(prev);
-        newSet.delete(data.filePath);
-        return newSet;
-      });
-    }
-  }, []);
+  const handleFileSaved = useCallback(() => {}, []);
 
   const { requestFileContent, saveFileContent } = useSocket({
     onFileContent: handleFileContent,
@@ -60,7 +51,6 @@ const CodeArea = ({
   const handleEditorChange = (value: string | undefined, filePath: string) => {
     if (value !== undefined) {
       setFileContents((prev) => ({ ...prev, [filePath]: value }));
-      setUnsavedChanges((prev) => new Set(prev).add(filePath));
     }
   };
 
