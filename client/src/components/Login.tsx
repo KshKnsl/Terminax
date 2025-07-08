@@ -1,5 +1,5 @@
 import { Button } from "./ui/button";
-import { Github, Mail, LogIn, User as UserIcon } from "lucide-react";
+import { Github, LogIn, User as UserIcon } from "lucide-react";
 import { useState } from "react";
 
 const SERVER_URL = import.meta.env.VITE_SERVER_URL || "http://localhost:3000";

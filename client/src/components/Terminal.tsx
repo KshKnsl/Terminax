@@ -1,6 +1,5 @@
 import React, { useRef, useEffect, useState } from "react";
-import { Button } from "./ui/button";
-import { X, Minus, Square, Terminal as TerminalIcon } from "lucide-react";
+import { Terminal as TerminalIcon } from "lucide-react";
 
 interface TerminalProps {
   className?: string;

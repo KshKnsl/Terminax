@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Loader2, ArrowLeft, GitCommit } from "lucide-react";
+import { ArrowLeft, GitCommit } from "lucide-react";
 import Loading from "@/components/ui/Loading";
 import {
   Dialog,
