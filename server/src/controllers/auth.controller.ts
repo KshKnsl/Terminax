@@ -43,33 +43,50 @@ export class AuthController {
     const clientUrl = process.env.CLIENT_URL || "http://localhost:5173";
     const user = req.user as UserInterface;
     await UserController.updateLastLogin(user.id);
-    res.redirect(`${clientUrl}/dashboard`);
+     res.redirect(`${clientUrl}/dashboard`);
   }
   static async handleGithubCallback(req: Request, res: Response): Promise<void> {
     const clientUrl = process.env.CLIENT_URL || "http://localhost:5173";
     const user = req.user as UserInterface;
     await UserController.updateLastLogin(user.id);
+    
     res.redirect(`${clientUrl}/dashboard`);
   }
 
   static async getStatus(req: Request, res: Response): Promise<void> {
+    if (!req.isAuthenticated() || !req.user) {
+      res.json({
+        isAuthenticated: false,
+        user: undefined,
+      } satisfies AuthResponse);
+      return;
+    }
+
     const sessionUser = req.user as UserInterface;
     const user = await UserController.findById(sessionUser.id);
-    user &&
+
+    if (!user) {
       res.json({
-        isAuthenticated: true,
-        user: {
-          _id: user.id,
-          id: user.id,
-          username: user.username,
-          email: user.email,
-          displayName: user.displayName,
-          avatar: user.avatar,
-          provider: user.provider,
-          createdAt: user.createdAt,
-          lastLogin: user.lastLogin,
-        },
+        isAuthenticated: false,
+        user: undefined,
       } satisfies AuthResponse);
+      return;
+    }
+
+    res.json({
+      isAuthenticated: true,
+      user: {
+        _id: user.id,
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        displayName: user.displayName,
+        avatar: user.avatar,
+        provider: user.provider,
+        createdAt: user.createdAt,
+        lastLogin: user.lastLogin,
+      },
+    } satisfies AuthResponse);
   }
 
   static async logout(req: Request, res: Response): Promise<void> {

@@ -1,4 +1,3 @@
-"use client";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "./ui/tabs";
 import { X } from "lucide-react";
 import { Button } from "./ui/button";

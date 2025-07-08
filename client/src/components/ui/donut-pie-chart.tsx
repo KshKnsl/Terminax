@@ -1,5 +1,3 @@
-"use client";
-
 import * as React from "react";
 import { Pie, PieChart, Label, Cell, ResponsiveContainer } from "recharts";
 import {

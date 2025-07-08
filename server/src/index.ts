@@ -28,22 +28,33 @@ const httpServer = createServer(app);
 
 const io = new Server(httpServer, {
   cors: {
-    origin: process.env.CLIENT_URL || "http://localhost:5173",
+    origin: true, // Allow all origins
     credentials: true,
+    methods: ["GET", "POST"],
   },
 });
 
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || "http://localhost:5173",
+    origin: true, // Allow all origins
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
+    exposedHeaders: ["set-cookie"],
   })
 );
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan("dev"));
+
+// Add OPTIONS handler for preflight requests
+app.options("*", (req, res) => {
+  res.header("Access-Control-Allow-Origin", req.headers.origin);
+  res.header("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.header("Access-Control-Allow-Credentials", "true");
+  res.sendStatus(200);
+});
 
 app.use(
   session({
@@ -55,8 +66,10 @@ app.use(
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       maxAge: 24 * 60 * 60 * 1000,
+      domain: process.env.NODE_ENV === "production" ? undefined : undefined,
     },
   })
 );
@@ -66,12 +79,20 @@ app.use(passport.session());
 configurePassport();
 
 app.use((req, res, next) => {
+  // Allow auth routes and root path
   if (req.path.startsWith("/auth") || req.path === "/") {
     return next();
   }
+
+  // Check authentication for protected routes
   if (!req.isAuthenticated()) {
-    return res.status(401).json({ error: "Unauthorized", message: "Unauthorized" });
+    return res.status(401).json({
+      error: "Unauthorized",
+      message: "Authentication required",
+      isAuthenticated: false,
+    });
   }
+
   next();
 });
 
@@ -87,13 +108,7 @@ app.get("/", (_req, res) => {
   res.status(200).json({ message: "Terminax API server" });
 });
 
-
 app.use(express.static(path.join(__dirname, "public")));
-
-app.get("*", (req, res) => {
-  const indexPath = path.join(__dirname, "public", "index.html");
-  res.sendFile(indexPath);
-});
 
 const PORT = process.env.PORT || 3000;
 httpServer.listen(PORT, () => {

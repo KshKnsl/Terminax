@@ -42,14 +42,35 @@ export default function configurePassport(): void {
     if (!u) return done(null, false);
     return done(null, u);
   });
+  const validateCallbackURL = (url: string | undefined, defaultUrl: string): string => {
+    if (!url) return defaultUrl;
+    try {
+      new URL(url);
+      if (url.startsWith('http://') || url.startsWith('https://')) {
+        return url;
+      }
+    } catch {
+      console.warn(`Invalid callback URL: ${url}, using default: ${defaultUrl}`);
+    }
+    return defaultUrl;
+  };
+
+  const githubCallbackURL = validateCallbackURL(
+    process.env.GITHUB_CALLBACK_URL, 
+    "http://localhost:3000/auth/github/callback"
+  );
+  
+  const googleCallbackURL = validateCallbackURL(
+    process.env.GOOGLE_CALLBACK_URL, 
+    "http://localhost:3000/auth/google/callback"
+  );
 
   passport.use(
     new GitHubStrategy(
       {
         clientID: process.env.GITHUB_CLIENT_ID || "",
         clientSecret: process.env.GITHUB_CLIENT_SECRET || "",
-        callbackURL:
-          process.env.GITHUB_CALLBACK_URL || "http://localhost:3000/auth/github/callback",
+        callbackURL: githubCallbackURL,
         scope: ["user:email", "repo"],
       },
       async (at: string, rt: string, p: any, done: any) => {
@@ -88,8 +109,7 @@ export default function configurePassport(): void {
       {
         clientID: process.env.GOOGLE_CLIENT_ID || "",
         clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
-        callbackURL:
-          process.env.GOOGLE_CALLBACK_URL || "http://localhost:3000/auth/google/callback",
+        callbackURL: googleCallbackURL,
       },
       async (at: string, rt: string, p: any, done: any) => {
         const email = p.emails[0].value;
