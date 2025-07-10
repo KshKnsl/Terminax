@@ -43,18 +43,28 @@ export class AuthController {
     const clientUrl = process.env.CLIENT_URL || "http://localhost:5173";
     const user = req.user as UserInterface;
     await UserController.updateLastLogin(user.id);
-     res.redirect(`${clientUrl}/dashboard`);
-  }
-  static async handleGithubCallback(req: Request, res: Response): Promise<void> {
+    res.redirect(`${clientUrl}/dashboard`);
+  }  static async handleGithubCallback(req: Request, res: Response): Promise<void> {
     const clientUrl = process.env.CLIENT_URL || "http://localhost:5173";
     const user = req.user as UserInterface;
     await UserController.updateLastLogin(user.id);
     
+    // Log session details
+    console.log('Github Callback - Session:', req.session);
+    console.log('Github Callback - User:', req.user);
+    console.log('Github Callback - Is Authenticated:', req.isAuthenticated());    
     res.redirect(`${clientUrl}/dashboard`);
   }
 
   static async getStatus(req: Request, res: Response): Promise<void> {
+    console.log("Session:", req.session);
+    console.log("Is Authenticated:", req.isAuthenticated());
+    console.log("User:", req.user);
+    console.log("Cookies:", req.cookies);
+    console.log("Headers:", req.headers);
+
     if (!req.isAuthenticated() || !req.user) {
+      console.log("Not authenticated or no user");
       res.json({
         isAuthenticated: false,
         user: undefined,
@@ -66,6 +76,7 @@ export class AuthController {
     const user = await UserController.findById(sessionUser.id);
 
     if (!user) {
+      console.log("User not found in database");
       res.json({
         isAuthenticated: false,
         user: undefined,
@@ -73,6 +84,7 @@ export class AuthController {
       return;
     }
 
+    console.log("Authentication successful, returning user");
     res.json({
       isAuthenticated: true,
       user: {

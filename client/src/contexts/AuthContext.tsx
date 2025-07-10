@@ -49,21 +49,32 @@ interface AuthProviderProps {
 }
 
 const fetchWithAuth = async (url: string, options: RequestInit = {}) => {
-  const response = await fetch(url, {
-    ...options,
-    credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  });
+  try {
+    console.log("Fetching:", url);
+    const response = await fetch(url, {
+      ...options,
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+        ...options.headers,
+      },
+    });
 
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ message: "An error occurred" }));
-    throw new Error(error.message || "Network response was not ok");
+    console.log("Response status:", response.status);
+    console.log("Response headers:", [...response.headers.entries()]);
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: "An error occurred" }));
+      throw new Error(error.message || "Network response was not ok");
+    }
+
+    const data = await response.json();
+    console.log("Response data:", data);
+    return data;
+  } catch (error) {
+    console.error("Fetch error:", error);
+    throw error;
   }
-
-  return response.json();
 };
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
