@@ -44,61 +44,58 @@ export class AuthController {
     const user = req.user as UserInterface;
     await UserController.updateLastLogin(user.id);
     res.redirect(`${clientUrl}/dashboard`);
-  }  static async handleGithubCallback(req: Request, res: Response): Promise<void> {
+  }
+  static async handleGithubCallback(req: Request, res: Response): Promise<void> {
     const clientUrl = process.env.CLIENT_URL || "http://localhost:5173";
     const user = req.user as UserInterface;
     await UserController.updateLastLogin(user.id);
-    
-    // Log session details
-    console.log('Github Callback - Session:', req.session);
-    console.log('Github Callback - User:', req.user);
-    console.log('Github Callback - Is Authenticated:', req.isAuthenticated());    
+
+    // Force session save before redirect
+    if (req.session) {
+      await new Promise<void>((resolve, reject) => {
+        req.session.save((err) => {
+          if (err) {
+            console.error("Session save error:", err);
+            reject(err);
+          }
+          console.log("Session saved successfully");
+          console.log("New Session ID:", req.sessionID);
+          resolve();
+        });
+      });
+    }
+
+    // Log response headers before sending
+    const responseHeaders = {
+      ...res.getHeaders(),
+      "set-cookie": res.getHeader("set-cookie"),
+    };
     res.redirect(`${clientUrl}/dashboard`);
   }
 
   static async getStatus(req: Request, res: Response): Promise<void> {
-    console.log("Session:", req.session);
+    console.log("\n=== getStatus Request ===");
+    console.log("Session ID:", req.sessionID);
+    console.log(
+      "Session Cookie:",
+      req.headers.cookie?.split(";").find((c) => c.trim().startsWith("connect.sid="))
+    );
+    console.log("Session Data:", req.session);
     console.log("Is Authenticated:", req.isAuthenticated());
     console.log("User:", req.user);
-    console.log("Cookies:", req.cookies);
     console.log("Headers:", req.headers);
+    console.log("Cookies:", req.cookies);
 
-    if (!req.isAuthenticated() || !req.user) {
-      console.log("Not authenticated or no user");
-      res.json({
-        isAuthenticated: false,
-        user: undefined,
-      } satisfies AuthResponse);
+    if (!req.isAuthenticated()) {
+      console.log("Not authenticated - redirecting to login");
+      res.status(401).json({ message: "Not authenticated" });
       return;
     }
 
-    const sessionUser = req.user as UserInterface;
-    const user = await UserController.findById(sessionUser.id);
-
-    if (!user) {
-      console.log("User not found in database");
-      res.json({
-        isAuthenticated: false,
-        user: undefined,
-      } satisfies AuthResponse);
-      return;
-    }
-
-    console.log("Authentication successful, returning user");
-    res.json({
-      isAuthenticated: true,
-      user: {
-        _id: user.id,
-        id: user.id,
-        username: user.username,
-        email: user.email,
-        displayName: user.displayName,
-        avatar: user.avatar,
-        provider: user.provider,
-        createdAt: user.createdAt,
-        lastLogin: user.lastLogin,
-      },
-    } satisfies AuthResponse);
+    const user = req.user as UserInterface;
+    console.log("Authenticated user:", user);
+    res.json({ message: "Authenticated", user });
+    console.log("=== getStatus End ===\n");
   }
 
   static async logout(req: Request, res: Response): Promise<void> {

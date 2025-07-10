@@ -61,6 +61,9 @@ app.use(
   session({
     store: MongoStore.create({
       mongoUrl: process.env.MONGODB_URI || "mongodb://localhost:27017/terminaux",
+      ttl: 24 * 60 * 60, // Session TTL in seconds
+      autoRemove: 'native', // Use MongoDB's TTL index
+      touchAfter: 24 * 3600, // Minimize unnecessary updates
     }),
     secret: process.env.SESSION_SECRET!,
     resave: true,
