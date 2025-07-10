@@ -50,29 +50,30 @@ interface AuthProviderProps {
 
 const fetchWithAuth = async (url: string, options: RequestInit = {}) => {
   try {
-    console.log("Fetching:", url);
     const response = await fetch(url, {
       ...options,
       credentials: "include",
       headers: {
         "Content-Type": "application/json",
+        "Accept": "application/json",
         ...options.headers,
       },
+      mode: "cors",
     });
-
-    console.log("Response status:", response.status);
-    console.log("Response headers:", [...response.headers.entries()]);
+    
+    if (response.redirected) {
+      window.location.href = response.url;
+      return;
+    }
 
     if (!response.ok) {
       const error = await response.json().catch(() => ({ message: "An error occurred" }));
       throw new Error(error.message || "Network response was not ok");
     }
 
-    const data = await response.json();
-    console.log("Response data:", data);
-    return data;
+    return await response.json();
   } catch (error) {
-    console.error("Fetch error:", error);
+    console.error("Request failed:", error);
     throw error;
   }
 };
@@ -93,8 +94,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
       clearTimeout(timeoutId);
 
-      if (data.isAuthenticated && data.user) {
-        console.log(data);
+      if (data.user && typeof data.user === 'object') {
         setUser(data.user);
         setIsAuthenticated(true);
       } else {
@@ -102,17 +102,25 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         setIsAuthenticated(false);
       }
     } catch (error) {
-      console.error("Error checking authentication status:", error);
       setUser(null);
       setIsAuthenticated(false);
+      throw error;
     } finally {
       setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    refreshUser();
-  }, []);
+    refreshUser().catch(() => setIsLoading(false));
+
+    const intervalId = setInterval(() => {
+      if (isAuthenticated) {
+        refreshUser().catch(() => {});
+      }
+    }, 5 * 60 * 1000);
+
+    return () => clearInterval(intervalId);
+  }, [isAuthenticated]);
 
   const logout = async () => {
     try {
