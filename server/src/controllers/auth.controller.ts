@@ -45,41 +45,19 @@ export class AuthController {
     await UserController.updateLastLogin(user.id);
     res.redirect(`${clientUrl}/dashboard`);
   }
+
   static async handleGithubCallback(req: Request, res: Response): Promise<void> {
-    const clientUrl = process.env.CLIENT_URL || "http://localhost:5173";
+      const clientUrl = process.env.CLIENT_URL || "http://localhost:5173";
     const user = req.user as UserInterface;
     await UserController.updateLastLogin(user.id);
-
-    // Force session save before redirect
-    if (req.session) {
-      await new Promise<void>((resolve, reject) => {
-        req.session.save((err) => {
-          if (err) {
-            console.error("Session save error:", err);
-            reject(err);
-          }
-          console.log("Session saved successfully");
-          console.log("New Session ID:", req.sessionID);
-          resolve();
-        });
-      });
-    }
-
-    // Log response headers before sending
-    const responseHeaders = {
-      ...res.getHeaders(),
-      "set-cookie": res.getHeader("set-cookie"),
-    };
     res.redirect(`${clientUrl}/dashboard`);
+ 
   }
 
   static async getStatus(req: Request, res: Response): Promise<void> {
     console.log("\n=== getStatus Request ===");
     console.log("Session ID:", req.sessionID);
-    console.log(
-      "Session Cookie:",
-      req.headers.cookie?.split(";").find((c) => c.trim().startsWith("connect.sid="))
-    );
+    console.log("Session Cookie:", req.headers.cookie?.split(";").find((c) => c.trim().startsWith("connect.sid=")));
     console.log("Session Data:", req.session);
     console.log("Is Authenticated:", req.isAuthenticated());
     console.log("User:", req.user);
@@ -87,8 +65,12 @@ export class AuthController {
     console.log("Cookies:", req.cookies);
 
     if (!req.isAuthenticated()) {
-      console.log("Not authenticated - redirecting to login");
-      res.status(401).json({ message: "Not authenticated" });
+      console.log("Not authenticated - sending 401");
+      res.status(401).json({
+        isAuthenticated: false,
+        user: undefined,
+        message: "Not authenticated"
+      } satisfies AuthResponse);
       return;
     }
 

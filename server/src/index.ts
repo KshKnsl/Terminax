@@ -7,6 +7,7 @@ import session from "express-session";
 import MongoStore from "connect-mongo";
 import passport from "passport";
 import path from "path";
+import cookieParser from "cookie-parser";
 import { createServer } from "http";
 import { Server } from "socket.io";
 import { setupSocketHandlers } from "./sockets";
@@ -46,17 +47,19 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan("dev"));
-
+app.use(cookieParser(process.env.SESSION_SECRET)); 
 app.set('trust proxy', 1);
 
 // Debug middleware
 app.use((req, res, next) => {
-  console.log('Session ID:', req.sessionID);
-  console.log('Session:', req.session);
-  console.log('Cookies:', req.headers.cookie);
+  console.log('\n=== Request Debug Info ===');
+  console.log('Path:', req.path);
+  console.log('Headers:', JSON.stringify(req.headers, null, 2));
+  console.log('Cookies (from parser):', req.cookies);
+  console.log('Signed Cookies:', req.signedCookies);
+  console.log('Raw Cookie Header:', req.headers.cookie);
   next();
 });
-
 app.use(
   session({
     store: MongoStore.create({
@@ -66,10 +69,10 @@ app.use(
       touchAfter: 24 * 3600, // Minimize unnecessary updates
     }),
     secret: process.env.SESSION_SECRET!,
-    resave: true,
-    saveUninitialized: true,
+    resave: false,
+    saveUninitialized: false,
     proxy: true,
-    rolling: true, // Resets maxAge on each request
+    rolling: true,
     unset: 'destroy',
     cookie: {
       httpOnly: true,

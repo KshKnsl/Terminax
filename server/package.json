@@ -18,10 +18,12 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.842.0",
     "@aws-sdk/lib-storage": "^3.842.0",
+    "@types/cookie-parser": "^1.4.9",
     "@types/socket.io": "^3.0.2",
     "bcryptjs": "^3.0.2",
     "cloudinary": "^2.7.0",
     "connect-mongo": "^5.1.0",
+    "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
