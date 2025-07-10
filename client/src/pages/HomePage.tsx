@@ -4,18 +4,7 @@ import terminaxLogo from "@/assets/terminax-logo.png";
 import { cn } from "@/lib/utils";
 import { DotPattern } from "@/components/ui/dot-pattern";
 import { MovingGradient } from "@/components/ui/moving-gradient";
-import {
-  Coffee,
-  CloudLightningIcon as Lightning,
-  Wrench,
-  FileText,
-  Code,
-  Cpu,
-  Gem,
-  Hash,
-  Copy,
-  ExternalLink,
-} from "lucide-react";
+import { Copy, ExternalLink } from "lucide-react";
 
 export default function HomePage() {
   const [typedText, setTypedText] = useState("");
@@ -33,22 +22,6 @@ export default function HomePage() {
       return () => clearTimeout(timeout);
     }
   }, [currentIndex, heroText]);
-
-  const supportedLanguages = [
-    { name: "Java", supported: true, icon: Coffee, color: "text-orange-400" },
-    { name: "C++", supported: true, icon: Lightning, color: "text-blue-400" },
-    { name: "C", supported: true, icon: Wrench, color: "text-cyan-400" },
-    {
-      name: "JavaScript",
-      supported: true,
-      icon: FileText,
-      color: "text-yellow-400",
-    },
-    { name: "Python", supported: false, icon: Code, color: "text-purple-400" },
-    { name: "Go", supported: false, icon: Cpu, color: "text-teal-400" },
-    { name: "Rust", supported: false, icon: Gem, color: "text-red-400" },
-    { name: "Ruby", supported: false, icon: Hash, color: "text-pink-400" },
-  ];
 
   return (
     <div>
@@ -144,8 +117,6 @@ export default function HomePage() {
           </div>
         </div>
       </div>
-
-    </div>
     </div>
   );
 }
