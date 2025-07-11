@@ -1,5 +1,5 @@
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "./ui/tabs";
-import { X, Play, Edit2 } from "lucide-react";
+import { X, Edit2 } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import Editor from "@monaco-editor/react";
@@ -42,7 +42,7 @@ const CodeArea = ({
 
   const handleFileSaved = useCallback(() => {}, []);
 
-  const { requestFileContent, saveFileContent, executeCommand, socket } = useSocket({
+  const { requestFileContent, saveFileContent, socket } = useSocket({
     onFileContent: handleFileContent,
     onFileSaved: handleFileSaved,
   });
