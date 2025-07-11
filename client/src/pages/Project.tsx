@@ -111,6 +111,7 @@ const Project = () => {
                     patharray={filesData.localPath.patharray}
                     onFileOpen={handleFileOpen}
                     onFileSelect={handleFileSelect}
+                    onReloadFiles={fetchProjectFiles}
                   />
                 ) : (
                   <div className="p-4 text-gray-500 dark:text-[#7d8590]">No files available</div>
