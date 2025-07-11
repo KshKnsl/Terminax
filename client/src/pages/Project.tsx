@@ -16,6 +16,8 @@ const Project = () => {
   const [error, setError] = useState<string>("");
   const [openFiles, setOpenFiles] = useState<string[]>([]);
   const [activeFile, setActiveFile] = useState<string | null>(null);
+  const [command, setCommand] = useState<string>("npm start");
+  const [socket, setSocket] = useState<any>(null);
 
   const handleFileOpen = (filePath: string) => {
     if (!openFiles.includes(filePath)) {
@@ -129,6 +131,9 @@ const Project = () => {
                     onFileSelect={handleFileSelect}
                     onFileClose={handleFileClose}
                     projectId={id}
+                    defaultCommand={command}
+                    setCommand={setCommand}
+                    setSocket={setSocket}
                   />
                 </div>
               </ResizablePanel>
@@ -136,7 +141,11 @@ const Project = () => {
               <ResizableHandle withHandle />
 
               <ResizablePanel defaultSize={30} minSize={20} maxSize={70}>
-                <Terminal />
+                <Terminal
+                  command={command}
+                  projectId={id}
+                  socket={socket}
+                />
               </ResizablePanel>
             </ResizablePanelGroup>
           </ResizablePanel>

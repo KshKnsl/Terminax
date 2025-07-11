@@ -116,4 +116,25 @@ export class ProjectController {
       .status(200)
       .send({ success: true, message: "Project files fetched successfully", localPath, project });
   }
+
+  static async getProjectCommand(req: Request, res: Response) {
+    const project = await Project.findById(req.params.id);
+    if (!project) {
+      return res.status(404).send({ success: false, message: "Project not found" });
+    }
+    res.status(200).send({ success: true, command: project.command || "npm start" });
+  }
+
+  static async updateProjectCommand(req: Request, res: Response) {
+    const { command } = req.body;
+    const project = await Project.findByIdAndUpdate(
+      req.params.id,
+      { command },
+      { new: true }
+    );
+    if (!project) {
+      return res.status(404).send({ success: false, message: "Project not found" });
+    }
+    res.status(200).send({ success: true, message: "Command updated successfully", command: project.command });
+  }
 }

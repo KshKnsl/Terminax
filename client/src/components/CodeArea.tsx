@@ -1,6 +1,7 @@
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "./ui/tabs";
-import { X } from "lucide-react";
+import { X, Play, Edit2 } from "lucide-react";
 import { Button } from "./ui/button";
+import { Input } from "./ui/input";
 import Editor from "@monaco-editor/react";
 import { useState, useEffect, useCallback } from "react";
 import { useSocket } from "../hooks/useSocket";
@@ -11,6 +12,9 @@ interface CodeAreaProps {
   onFileSelect: (filePath: string) => void;
   onFileClose: (filePath: string) => void;
   projectId?: string;
+  defaultCommand?: string;
+  setCommand?: (cmd: string) => void;
+  setSocket?: (socket: any) => void;
 }
 const CodeArea = ({
   openFiles,
@@ -18,10 +22,15 @@ const CodeArea = ({
   onFileSelect,
   onFileClose,
   projectId,
+  defaultCommand = "npm start",
+  setCommand,
+  setSocket,
 }: CodeAreaProps) => {
   const [fileContents, setFileContents] = useState<Record<string, string>>({});
   const [loadingFiles, setLoadingFiles] = useState<Set<string>>(new Set());
-  
+  const [isEditingCommand, setIsEditingCommand] = useState(false);
+  const [localCommand, setLocalCommand] = useState(defaultCommand);
+
   const handleFileContent = useCallback((data: { filePath: string; content: string }) => {
     setFileContents((prev) => ({ ...prev, [data.filePath]: data.content }));
     setLoadingFiles((prev) => {
@@ -33,10 +42,29 @@ const CodeArea = ({
 
   const handleFileSaved = useCallback(() => {}, []);
 
-  const { requestFileContent, saveFileContent } = useSocket({
+  const { requestFileContent, saveFileContent, executeCommand, socket } = useSocket({
     onFileContent: handleFileContent,
     onFileSaved: handleFileSaved,
   });
+
+  const handleCommandSave = async () => {
+    if (!projectId) return;
+    try {
+      const response = await fetch(`/api/project/command/${projectId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ command: localCommand }),
+      });
+      if (response.ok) {
+        setIsEditingCommand(false);
+        if (setCommand) setCommand(localCommand);
+      }
+    } catch (error) {
+      console.error("Failed to save command:", error);
+    }
+  };
 
   const loadFileContent = (filePath: string) => {
     if (fileContents[filePath] || loadingFiles.has(filePath)) {
@@ -59,6 +87,31 @@ const CodeArea = ({
       saveFileContent(filePath, content, projectId);
     }
   };
+
+  useEffect(() => {
+    const fetchCommand = async () => {
+      if (!projectId) return;
+      try {
+        const response = await fetch(`/api/project/command/${projectId}`);
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success) {
+            setLocalCommand(data.command);
+            if (setCommand) setCommand(data.command);
+          }
+        }
+      } catch (error) {
+        console.error("Failed to fetch command:", error);
+      }
+    };
+    fetchCommand();
+  }, [projectId, setCommand]);
+  // Sync socket to parent
+  useEffect(() => {
+    if (setSocket && socket) setSocket(socket);
+  }, [socket, setSocket]);
+
+  // Remove terminal output effect from CodeArea
 
   useEffect(() => {
     openFiles.forEach((filePath) => {
@@ -95,7 +148,48 @@ const CodeArea = ({
         value={activeFile || openFiles[0]}
         onValueChange={onFileSelect}
         className="h-full flex flex-col">
-        <div className="border-b border-gray-200 dark:border-[#30363d] bg-gray-50 dark:bg-[#0A0A0A]">
+        <div className="border-b border-gray-200 dark:border-[#30363d] bg-gray-50 dark:bg-[#0A0A0A] flex-col">
+          <div className="flex items-center justify-between px-3 py-2 border-b border-gray-200 dark:border-[#30363d]">
+            <div className="flex items-center space-x-2">
+              {isEditingCommand ? (
+                <>
+                  <Input
+                    value={localCommand}
+                    onChange={(e) => setLocalCommand(e.target.value)}
+                    className="w-64 h-8 text-sm"
+                    placeholder="Enter command..."
+                  />
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={handleCommandSave}
+                    className="h-8 px-2 text-green-600">
+                    Save
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => setIsEditingCommand(false)}
+                    className="h-8 px-2 text-red-600">
+                    Cancel
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <span className="text-sm text-gray-600 dark:text-[#7d8590]">
+                    Command: {localCommand}
+                  </span>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => setIsEditingCommand(true)}
+                    className="h-8 px-2">
+                    <Edit2 className="h-4 w-4" />
+                  </Button>
+                </>
+              )}
+            </div>
+          </div>
           <TabsList className="h-auto p-0 bg-transparent justify-start rounded-none w-full">
             {openFiles.map((filePath) => (
               <div key={filePath} className="relative group">

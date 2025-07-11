@@ -8,6 +8,8 @@ interface UseSocketProps {
   onFileError?: (data: { filePath: string; error: string }) => void;
   onFileSaved?: (data: { filePath: string; success: boolean; projectId?: string }) => void;
   onFileSaveError?: (data: { filePath: string; error: string }) => void;
+  onCommandOutput?: (data: { projectId: string; output: string; error?: boolean }) => void;
+  onCommandComplete?: (data: { projectId: string; code: number }) => void;
 }
 
 export const useSocket = ({
@@ -15,6 +17,8 @@ export const useSocket = ({
   onFileError,
   onFileSaved,
   onFileSaveError,
+  onCommandOutput,
+  onCommandComplete,
 }: UseSocketProps = {}) => {
   const socketRef = useRef<Socket | null>(null);
 
@@ -38,12 +42,18 @@ export const useSocket = ({
     if (onFileSaveError) {
       socket.on("file-save-error", onFileSaveError);
     }
+    if (onCommandOutput) {
+      socket.on("command-output", onCommandOutput);
+    }
+    if (onCommandComplete) {
+      socket.on("command-complete", onCommandComplete);
+    }
 
     // Cleanup on unmount
     return () => {
       socket.disconnect();
     };
-  }, [onFileContent, onFileError, onFileSaved, onFileSaveError]);
+  }, [onFileContent, onFileError, onFileSaved, onFileSaveError, onCommandOutput, onCommandComplete]);
 
   const requestFileContent = (filePath: string, projectId?: string) => {
     if (socketRef.current) {
@@ -57,9 +67,16 @@ export const useSocket = ({
     }
   };
 
+  const executeCommand = (projectId: string, command: string) => {
+    if (socketRef.current) {
+      socketRef.current.emit("execute-command", { projectId, command });
+    }
+  };
+
   return {
+    socket: socketRef.current,
     requestFileContent,
     saveFileContent,
-    socket: socketRef.current,
+    executeCommand,
   };
 };
